@@ -32,7 +32,7 @@ class EZComponent { // EZComponent class
 				html,
 				prop: data
 			};
-			data = rawToElement(objToRaw(obj));
+			data = objToElement(obj);
 		} else if (typeof data === 'string') {
 			if (data.startsWith('<')) {
 				data = rawToElement(data);
@@ -127,25 +127,14 @@ function rawToElement(raw) {
 	return div.firstChild;
 }
 
-function objToRaw(obj) {
+function objToElement(obj) {
 	obj = copy(obj);
-	let tag = obj.tag;
-	let html = obj.html;
-	let properties = obj.prop;
-	let raw = `<${tag}`;
-	for (let prop in properties) {
-		if (prop[properties] === true) {
-			raw += ` ${prop}`;
-		} else {
-			raw += ` ${prop}="${properties[prop]}"`;
-		}
+	let elem = document.createElement(obj.tag);
+	elem.innerHTML = obj.html;
+	for(let prop in obj.prop) {
+		elem.setAttribute(prop, obj.prop[prop]);
 	}
-	if (valid.selfClosing.includes(tag)) {
-		raw += ` />`;
-	} else {
-		raw += `>${html || ''}</${tag}>`;
-	}
-	return raw;
+	return elem;
 }
 
 function objToSelector(obj) {
