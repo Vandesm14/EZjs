@@ -4,10 +4,10 @@
 // console.log(ez.create({tag: 'p', id: 'test', text: 'Hello World', 'ez-id': 1235}).raw());
 // console.log(ez.create('<p id="test" ez-id="1235">Hello World</p>').raw());
 
-/* Test Selectors and Methods */
+/* Test Internal Selectors */
 let el = ez.create('<p id="test">Hello World</p>');
-let el2 = ez.create('<p id="test">Hello World2</p>');
+let el2 = ez.create('<p id="test2">Number Two</p>');
 el.appendTo('body');
 el.appendTo('body');
-el2.prependTo('body');
-el2.prependTo('body');
+el2.appendTo({tag: 'body'});
+el2.appendTo(el);

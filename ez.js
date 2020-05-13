@@ -10,7 +10,12 @@ let DOM;
 
 class EZComponent { // EZComponent class
 	constructor(data) { // Constructor
-		this.core = {
+		this.core = [];
+		this.__create__(data);
+	}
+
+	__create__(data) {
+		let obj = {
 			tag: '',
 			prop: {}
 		};
@@ -22,92 +27,101 @@ class EZComponent { // EZComponent class
 			delete data.tag;
 			if (data.hasOwnProperty('html')) delete data.html;
 			if (data.hasOwnProperty('text')) delete data.text;
-			this.core = {
+			obj = {
 				tag,
 				html,
 				prop: data
 			};
 		} else if (typeof data === 'string') {
 			if (data.startsWith('<')) {
-				this.core = rawToObj(data);
+				obj = rawToObj(data);
 			} else {
-				this.core.tag = data;
+				obj.tag = data;
 			}
 		}
-		this.core.prop['ez-id'] = ((+new Date) * Math.round(Math.random()*10**10)).toString(36);
+		obj.prop['ez-id'] = ((+new Date) * Math.round(Math.random() * 10 ** 10)).toString(36);
+		this.core.push(obj);
 	}
 
 	/* Properties */
 	tag(tag) {
 		if (tag) {
-			this.core.tag = tag;
+			this.core.forEach(el => el.tag = tag);
 			return this;
 		} else {
-			return this.core.tag;
+			return this.core[0].tag;
 		}
 	}
 	id(id) {
 		if (id) {
-			this.core.prop.id = id;
+			this.core.forEach(el => el.prop.id = id);
 			return this;
 		} else {
-			return this.core.prop.id;
+			return this.core[0].prop.id;
+		}
+	}
+	ez(id) {
+		if (id) {
+			this.core.forEach(el => el.prop['ez-id'] = id);
+			return this;
+		} else {
+			return this.core[0].prop['ez-id'];
 		}
 	}
 	className(className) {
 		if (className) {
-			this.core.prop.className = className;
+			this.core.forEach(el => el.prop.className = className);
 			return this;
 		} else {
-			return this.core.prop.className;
+			return this.core[0].prop.className;
 		}
 	}
 	text(text) {
 		if (text) {
-			this.core.html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+			this.core.forEach(el => el.html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
 			return this;
 		} else {
-			return this.core.html;
+			return this.core[0].html;
 		}
 	}
 	html(text) {
 		if (text) {
-			this.core.html = text;
+			this.core.forEach(el => el.html = text);
 			return this;
 		} else {
-			return this.core.html;
+			return this.core[0].html;
 		}
 	}
 	attr(prop, val) {
 		if (val) {
-			this.core.prop[prop] = val;
+			this.core.forEach(el => el.prop[prop] = val);
 			return this;
 		} else {
-			return this.core.prop[prop];
+			return this.core[0].prop[prop];
 		}
 	}
 
 	/* Placement */
 	appendTo(selector) {
-		document.querySelector(selector).insertAdjacentHTML('beforeend', this.raw());
+		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('beforeend', this.raw()));
 	}
 	prependTo(selector) {
-		document.querySelector(selector).insertAdjacentHTML('afterbegin', this.raw());
+		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('afterbegin', this.raw()));
 	}
 	addBefore(selector) {
-		document.querySelector(selector).insertAdjacentHTML('beforebegin', this.raw());
+		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('beforebegin', this.raw()));
 	}
 	addAfter(selector) {
-		document.querySelector(selector).insertAdjacentHTML('afterend', this.raw());
+		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('afterend', this.raw()));
 	}
 	raw() { // Convert EZComponent to HTML and return
-		return objToRaw(this.core);
+		return objToRaw(this.core[0]);
 	}
 }
 
 function rawToObj(raw) {
 	let properties = raw.match(/\s.+?\s*=\s*".+?"/g) || [];
-	let html = raw.match(/>.+</g);
+	let html = raw.match(/>.+?</g);
 	let tag = raw.match(/<\w+/g);
 	if (!tag) throw new Error('Tag is not present in raw html');
 	html = html && html[0];
@@ -147,6 +161,25 @@ function objToRaw(obj) {
 	return raw;
 }
 
+function objToSelector(obj) {
+	let selector = '';
+	if (obj.tag) selector += obj.tag;
+	if (obj.prop) {
+		if (obj.prop.id) {
+			selector += `#${obj.prop.id}`;
+			delete obj.prop.id;
+		}
+		if (obj.prop.className) {
+			selector += `.${obj.prop.className}`;
+			delete obj.prop.className;
+		}
+		for (let prop in obj.prop) {
+			selector += `${prop}="${obj.prop[prop]}"`;
+		}
+	}
+	return selector;
+}
+
 function copy(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
@@ -159,7 +192,7 @@ function copy(obj) {
 // 			if (selector instanceof EZComponent) {
 // 				// select via EZComponent class
 // 			} else {
-// 				return querySelectorAll(selector);
+// 				return document.querySelectorAll(selector);
 // 			}
 // 		}
 // 	};
@@ -167,16 +200,25 @@ function copy(obj) {
 
 const ez = {
 	create: function (data) { // Generates new EZComponent
-		let ret = new EZComponent(data);
-		return ret;
+		return new EZComponent(data);
 	},
-	select: function (selector) {
+	select: function (selector, raw) {
+		let selection;
+		let obj;
 		if (selector instanceof EZComponent) {
-			return querySelectorAll(`[ez-id="${selector.attr('ez-id')}"]`);
+			selection = document.querySelectorAll(`[ez-id="${selector.attr('ez-id')}"]`);
 		} else if (typeof selector === 'object') {
-			// select via object
+			selection = document.querySelectorAll(objToSelector(selector));
 		} else {
-			return querySelectorAll(selector);
+			selection = document.querySelectorAll(selector);
+		}
+		selection = Array.from(selection || []);
+		if (raw) {
+			return selection;
+		} else {
+			obj = new EZComponent(selection.shift().outerHTML);
+			selection.map(el => obj.__create__(el.outerHTML));
+			return obj;
 		}
 	}
 };
