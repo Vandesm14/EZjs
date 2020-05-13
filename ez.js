@@ -32,21 +32,23 @@ class EZComponent { // EZComponent class
 				html,
 				prop: data
 			};
+			data = rawToElement(objToRaw(obj));
 		} else if (typeof data === 'string') {
 			if (data.startsWith('<')) {
-				obj = rawToObj(data);
+				data = rawToElement(data);
 			} else {
-				obj.tag = data;
+				data = document.createElement(data);
 			}
 		}
-		obj.prop['ez-id'] = ((+new Date) * Math.round(Math.random() * 10 ** 10)).toString(36);
-		this.core.push(obj);
+		data.setAttribute('ez-id', ((+new Date) * Math.round(Math.random() * 10 ** 10)).toString(36));
+		this.core.push(data);
 	}
 
 	/* Properties */
 	tag(tag) {
+		// FIXME: Auto-Regenerate element with new tag if live
 		if (tag) {
-			this.core.forEach(el => el.tag = tag);
+			// this.core.forEach(el => el.tag = tag);
 			return this;
 		} else {
 			return this.core[0].tag;
@@ -54,50 +56,50 @@ class EZComponent { // EZComponent class
 	}
 	id(id) {
 		if (id) {
-			this.core.forEach(el => el.prop.id = id);
+			this.core.forEach(el => el.setAttribute('id', id));
 			return this;
 		} else {
-			return this.core[0].prop.id;
+			return this.core[0].getAttribute('id');
 		}
 	}
 	ez(id) {
 		if (id) {
-			this.core.forEach(el => el.prop['ez-id'] = id);
+			this.core.forEach(el => el.setAttribute('ez-id', id));
 			return this;
 		} else {
-			return this.core[0].prop['ez-id'];
+			return this.core[0].getAttribute('ez-id');
 		}
 	}
 	className(className) {
 		if (className) {
-			this.core.forEach(el => el.prop.className = className);
+			this.core.forEach(el => el.setAttribute('class', className));
 			return this;
 		} else {
-			return this.core[0].prop.className;
+			return this.core[0].getAttribute('className');
 		}
 	}
 	text(text) {
 		if (text) {
-			this.core.forEach(el => el.html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+			this.core.forEach(el => el.innerText = text);
 			return this;
 		} else {
-			return this.core[0].html;
+			return this.core[0].innerHTML;
 		}
 	}
 	html(text) {
 		if (text) {
-			this.core.forEach(el => el.html = text);
+			this.core.forEach(el => el.innerHTML = text);
 			return this;
 		} else {
-			return this.core[0].html;
+			return this.core[0].innerHTML;
 		}
 	}
 	attr(prop, val) {
 		if (val) {
-			this.core.forEach(el => el.prop[prop] = val);
+			this.core.forEach(el => el.setAttribute(prop, val));
 			return this;
 		} else {
-			return this.core[0].prop[prop];
+			return this.core[0].getAttribute(prop);
 		}
 	}
 
@@ -115,29 +117,14 @@ class EZComponent { // EZComponent class
 		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('afterend', this.raw()));
 	}
 	raw() { // Convert EZComponent to HTML and return
-		return objToRaw(this.core[0]);
+		return this.core[0].outerHTML;
 	}
 }
 
-function rawToObj(raw) {
-	let properties = raw.match(/\s.+?\s*=\s*".+?"/g) || [];
-	let html = raw.match(/>.+?</g);
-	let tag = raw.match(/<\w+/g);
-	if (!tag) throw new Error('Tag is not present in raw html');
-	html = html && html[0];
-	tag = tag && tag[0];
-	let obj = {
-		tag: tag.slice(1),
-		html: html && html.slice(1).slice(0, -1),
-		prop: {}
-	};
-	properties.map(el => {
-		return {
-			prop: el.match(/.+=/g)[0].trim().slice(0, -1),
-			val: el.match(/".+"/g)[0].trim().slice(1).slice(0, -1)
-		};
-	}).map(el => obj.prop[el.prop] = el.val);
-	return obj;
+function rawToElement(raw) {
+	let div = document.createElement('div');
+	div.innerHTML = raw.trim();
+	return div.firstChild;
 }
 
 function objToRaw(obj) {
