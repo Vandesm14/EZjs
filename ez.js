@@ -34,6 +34,7 @@ class EZComponent { // EZComponent class
 				this.core.tag = data;
 			}
 		}
+		this.core.prop['ez-id'] = ((+new Date) * Math.round(Math.random()*10**10)).toString(36);
 	}
 
 	/* Properties */
@@ -87,10 +88,10 @@ class EZComponent { // EZComponent class
 	}
 
 	/* Placement */
-	addTo(selector) {
+	appendTo(selector) {
 		document.querySelector(selector).insertAdjacentHTML('beforeend', this.raw());
 	}
-	addToStart(selector) {
+	prependTo(selector) {
 		document.querySelector(selector).insertAdjacentHTML('afterbegin', this.raw());
 	}
 	addBefore(selector) {
@@ -169,13 +170,9 @@ const ez = {
 		let ret = new EZComponent(data);
 		return ret;
 	},
-	createText: function (data) { // Generates new EZComponent as text
-		let ret = new EZComponent({text: data});
-		return ret;
-	},
 	select: function (selector) {
 		if (selector instanceof EZComponent) {
-			// select via EZComponent class (ez-id)
+			return querySelectorAll(`[ez-id="${selector.attr('ez-id')}"]`);
 		} else if (typeof selector === 'object') {
 			// select via object
 		} else {
