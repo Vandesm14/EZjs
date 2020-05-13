@@ -5,9 +5,10 @@
 // console.log(ez.create('<p id="test" ez-id="1235">Hello World</p>').raw());
 
 /* Test Internal Selectors */
-let el = ez.create('<p id="test">Hello World</p>');
-let el2 = ez.create('<p id="test2">Number Two</p>');
-el.appendTo('body');
-el.appendTo('body');
-el2.appendTo({tag: 'body'});
-el2.appendTo(el);
+// let el = ez.create('<p id="test">Hello World</p>');
+// let el2 = ez.create('<p id="test2">Number Two</p>');
+// el.appendTo('body');
+// el2.appendTo(el);
+// el2.attr('hey', 'hey');
+
+/* Test Live Components */

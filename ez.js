@@ -83,7 +83,7 @@ class EZComponent { // EZComponent class
 			this.core.forEach(el => el.innerText = text);
 			return this;
 		} else {
-			return this.core[0].innerHTML;
+			return this.core[0].innerText;
 		}
 	}
 	html(text) {
@@ -105,16 +105,16 @@ class EZComponent { // EZComponent class
 
 	/* Placement */
 	appendTo(selector) {
-		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('beforeend', this.raw()));
+		ez.select(selector, true).forEach(el => el.appendChild(this.core[0]));
 	}
 	prependTo(selector) {
-		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('afterbegin', this.raw()));
+		ez.select(selector, true).forEach(el => el.prependChild(this.core[0]));
 	}
 	addBefore(selector) {
-		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('beforebegin', this.raw()));
+		ez.select(selector, true).forEach(el => el.parentElement.insertBefore(this.core[0], el));
 	}
 	addAfter(selector) {
-		ez.select(selector, true).forEach(el => el.insertAdjacentHTML('afterend', this.raw()));
+		ez.select(selector, true).forEach(el => el.parentElement.insertAfter(this.core[0], el));
 	}
 	raw() { // Convert EZComponent to HTML and return
 		return this.core[0].outerHTML;
