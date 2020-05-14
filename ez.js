@@ -1,11 +1,4 @@
 // const ez = (function () {
-const valid = {
-	selfClosing: ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'],
-	tags: {
-		'': [],
-	}
-};
-
 let DOM;
 
 class EZComponent { // EZComponent class
@@ -40,7 +33,7 @@ class EZComponent { // EZComponent class
 				data = document.createElement(data);
 			}
 		}
-		data.setAttribute('ez-id', ((+new Date) * Math.round(Math.random() * 10 ** 10)).toString(36));
+		data.setAttribute('ez-id', gen());
 		this.core.push(data);
 	}
 
@@ -57,6 +50,7 @@ class EZComponent { // EZComponent class
 	id(id) {
 		if (id) {
 			this.core.forEach(el => el.setAttribute('id', id));
+			selectAll(this.core).forEach(el => el.setAttribute('id', id));
 			return this;
 		} else {
 			return this.core[0].getAttribute('id');
@@ -65,6 +59,7 @@ class EZComponent { // EZComponent class
 	ez(id) {
 		if (id) {
 			this.core.forEach(el => el.setAttribute('ez-id', id));
+			selectAll(this.core).forEach(el => el.setAttribute('ez-id', id));
 			return this;
 		} else {
 			return this.core[0].getAttribute('ez-id');
@@ -73,6 +68,7 @@ class EZComponent { // EZComponent class
 	className(className) {
 		if (className) {
 			this.core.forEach(el => el.setAttribute('class', className));
+			selectAll(this.core).forEach(el => el.setAttribute('class', className));
 			return this;
 		} else {
 			return this.core[0].getAttribute('className');
@@ -81,6 +77,7 @@ class EZComponent { // EZComponent class
 	text(text) {
 		if (text) {
 			this.core.forEach(el => el.innerText = text);
+			selectAll(this.core).forEach(el => el.innerText = text);
 			return this;
 		} else {
 			return this.core[0].innerText;
@@ -89,6 +86,7 @@ class EZComponent { // EZComponent class
 	html(text) {
 		if (text) {
 			this.core.forEach(el => el.innerHTML = text);
+			selectAll(this.core).forEach(el => el.innerHTML = text);
 			return this;
 		} else {
 			return this.core[0].innerHTML;
@@ -97,6 +95,7 @@ class EZComponent { // EZComponent class
 	attr(prop, val) {
 		if (val) {
 			this.core.forEach(el => el.setAttribute(prop, val));
+			selectAll(this.core).forEach(el => el.setAttribute(prop, val));
 			return this;
 		} else {
 			return this.core[0].getAttribute(prop);
@@ -105,17 +104,19 @@ class EZComponent { // EZComponent class
 
 	/* Placement */
 	appendTo(selector) {
-		ez.select(selector, true).forEach(el => el.appendChild(this.core[0]));
+		console.log(unique(this.core[0]));
+		ez.select(selector, true).forEach(el => el.appendChild(unique(this.core[0])));
 	}
 	prependTo(selector) {
-		ez.select(selector, true).forEach(el => el.prependChild(this.core[0]));
+		ez.select(selector, true).forEach(el => el.prependChild(unique(this.core[0])));
 	}
 	addBefore(selector) {
-		ez.select(selector, true).forEach(el => el.parentElement.insertBefore(this.core[0], el));
+		ez.select(selector, true).forEach(el => el.parentElement.insertBefore(unique(this.core[0]), el));
 	}
 	addAfter(selector) {
-		ez.select(selector, true).forEach(el => el.parentElement.insertAfter(this.core[0], el));
+		ez.select(selector, true).forEach(el => el.parentElement.insertAfter(unique(this.core[0]), el));
 	}
+	
 	raw() { // Convert EZComponent to HTML and return
 		return this.core[0].outerHTML;
 	}
@@ -156,8 +157,29 @@ function objToSelector(obj) {
 	return selector;
 }
 
+function selectAll(array) {
+	array = array.map(el => el.getAttribute('ez-id'));
+	let selector = array.map(el => `[ez-id="${el}"]`).join(', ');
+	let id = gen();
+	let list = [];
+	document.querySelectorAll(selector).forEach(el => el.setAttribute('ez-select', id));
+	document.querySelectorAll(selector).forEach(el => list.push(document.querySelector(`[ez-uid="${el.getAttribute('ez-uid')}"]`)));
+	document.querySelectorAll(`[ez-select="${id}"]`).forEach(el => el.removeAttribute('ez-select'));
+	return list;
+}
+
 function copy(obj) {
 	return JSON.parse(JSON.stringify(obj));
+}
+
+function unique(element) {
+	element = rawToElement(element.outerHTML);
+	element.setAttribute('ez-uid', gen())
+	return element;
+}
+
+function gen() {
+	return ((+new Date()) * Math.round(Math.random() * 10 ** 10)).toString(36);
 }
 
 // 	return {
