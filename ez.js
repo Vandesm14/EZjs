@@ -65,6 +65,7 @@ class EZComponent { // EZComponent class
 			return this.core[0].getAttribute('ez-id');
 		}
 	}
+
 	className(className) {
 		if (className) {
 			this.core.forEach(el => el.setAttribute('class', className));
@@ -74,6 +75,22 @@ class EZComponent { // EZComponent class
 			return this.core[0].getAttribute('className');
 		}
 	}
+	addClass(className) {
+		this.core[0].classList.add('className');
+		return this;
+	}
+	removeClass(className) {
+		this.core[0].classList.remove('className');
+		return this;
+	}
+	toggleClass(className) {
+		this.core[0].classList.toggle(className)
+		return this;
+	}
+	hasClass(className) {
+		return this.core[0].classList.contains(className);
+	}
+
 	text(text) {
 		if (text) {
 			this.core.forEach(el => el.innerText = text);
@@ -92,6 +109,7 @@ class EZComponent { // EZComponent class
 			return this.core[0].innerHTML;
 		}
 	}
+
 	attr(prop, val) {
 		if (val) {
 			this.core.forEach(el => el.setAttribute(prop, val));
@@ -101,10 +119,20 @@ class EZComponent { // EZComponent class
 			return this.core[0].getAttribute(prop);
 		}
 	}
+	hasAttr(prop) {
+		return !!this.core[0].getAttribute(prop);
+	}
+
+	index(index) {
+		if (index) {
+			return this.core[index];
+		} else {
+			return Array.from(this.core[0].parentElement.children).indexOf(this.core[0]);
+		}
+	}
 
 	/* Placement */
 	appendTo(selector) {
-		console.log(unique(this.core[0]));
 		ez.select(selector, true).forEach(el => el.appendChild(unique(this.core[0])));
 	}
 	prependTo(selector) {
@@ -116,15 +144,15 @@ class EZComponent { // EZComponent class
 	addAfter(selector) {
 		ez.select(selector, true).forEach(el => el.parentElement.insertAfter(unique(this.core[0]), el));
 	}
-	
+
+	/* Utility */
 	raw() { // Convert EZComponent to HTML and return
 		return this.core[0].outerHTML;
 	}
 }
 
 function rawToElement(raw) {
-	let div = document.createElement('div');
-	div.innerHTML = raw.trim();
+	let div = new DOMParser().parseFromString(raw, "text/html").body;
 	return div.firstChild;
 }
 
@@ -132,7 +160,7 @@ function objToElement(obj) {
 	obj = copy(obj);
 	let elem = document.createElement(obj.tag);
 	elem.innerHTML = obj.html;
-	for(let prop in obj.prop) {
+	for (let prop in obj.prop) {
 		elem.setAttribute(prop, obj.prop[prop]);
 	}
 	return elem;
@@ -174,7 +202,7 @@ function copy(obj) {
 
 function unique(element) {
 	element = rawToElement(element.outerHTML);
-	element.setAttribute('ez-uid', gen())
+	element.setAttribute('ez-uid', gen());
 	return element;
 }
 

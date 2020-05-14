@@ -20,3 +20,12 @@
 // el2.appendTo('body');
 // el1.text('Number 1');
 // el2.text('Number 2');
+
+/* Test Utility Methods */
+let el1 = ez.create('<p>Number One</p>');
+let el2 = ez.create('p').text('Number Two');
+el1.appendTo('body');
+el1.appendTo('body');
+el2.appendTo('body');
+el2.appendTo('body');
+console.log(ez.select(el2).index());
