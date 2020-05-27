@@ -28,4 +28,5 @@ el1.appendTo('body');
 el1.appendTo('body');
 el2.appendTo('body');
 el2.appendTo('body');
+// console.log(ez.select(el2, true)[0].parentElement.children);
 console.log(ez.select(el2).index());

@@ -1,10 +1,10 @@
-// const ez = (function () {
 let DOM;
 
 class EZComponent { // EZComponent class
 	constructor(data) { // Constructor
 		this.core = [];
 		this.__create__(data);
+		this.__selected__ = false;
 	}
 
 	__create__(data) {
@@ -123,11 +123,14 @@ class EZComponent { // EZComponent class
 		return !!this.core[0].getAttribute(prop);
 	}
 
+	/* --------- Selection Only Methods --------- */
 	index(index) {
 		if (index) {
 			return this.core[index];
 		} else {
-			return Array.from(this.core[0].parentElement.children).indexOf(this.core[0]);
+			if (!this.__selected__) throw new Error('Cannot get "index" of a component');
+			let el = ez.select(this, true);
+			return Array.from(el.parentElement.children).indexOf(el);
 		}
 	}
 
@@ -190,9 +193,9 @@ function selectAll(array) {
 	let selector = array.map(el => `[ez-id="${el}"]`).join(', ');
 	let id = gen();
 	let list = [];
-	document.querySelectorAll(selector).forEach(el => el.setAttribute('ez-select', id));
-	document.querySelectorAll(selector).forEach(el => list.push(document.querySelector(`[ez-uid="${el.getAttribute('ez-uid')}"]`)));
-	document.querySelectorAll(`[ez-select="${id}"]`).forEach(el => el.removeAttribute('ez-select'));
+	document.querySelectorAll(selector).forEach(el => el.setAttribute('ez-select', gen()));
+	document.querySelectorAll(selector).forEach(el => list.push(document.querySelector(`[ez-select="${el.getAttribute('ez-select')}"]`)));
+	document.querySelectorAll(`[ez-select]`).forEach(el => el.removeAttribute('ez-select'));
 	return list;
 }
 
@@ -209,20 +212,6 @@ function unique(element) {
 function gen() {
 	return ((+new Date()) * Math.round(Math.random() * 10 ** 10)).toString(36);
 }
-
-// 	return {
-// 		create: function (data) { // Generates new EZComponent
-// 			return new EZComponent(data);
-// 		},
-// 		select: function (selector) {
-// 			if (selector instanceof EZComponent) {
-// 				// select via EZComponent class
-// 			} else {
-// 				return document.querySelectorAll(selector);
-// 			}
-// 		}
-// 	};
-// })();
 
 const ez = {
 	create: function (data) { // Generates new EZComponent
@@ -243,6 +232,7 @@ const ez = {
 			return selection;
 		} else {
 			obj = new EZComponent(selection.shift().outerHTML);
+			obj.__selected__ = true;
 			selection.map(el => obj.__create__(el.outerHTML));
 			return obj;
 		}
