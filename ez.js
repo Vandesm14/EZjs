@@ -41,7 +41,7 @@ class EZComponent { // EZComponent class
 	tag(tag) {
 		// FIXME: Auto-Regenerate element with new tag if live
 		if (tag) {
-			// this.core.forEach(el => el.tag = tag);
+			console.warn('Setting tag is not yet supported')
 			return this;
 		} else {
 			return this.core[0].tag;
@@ -50,7 +50,6 @@ class EZComponent { // EZComponent class
 	id(id) {
 		if (id) {
 			this.core.forEach(el => el.setAttribute('id', id));
-			selectAll(this.core).forEach(el => el.setAttribute('id', id));
 			return this;
 		} else {
 			return this.core[0].getAttribute('id');
@@ -59,7 +58,6 @@ class EZComponent { // EZComponent class
 	ez(id) {
 		if (id) {
 			this.core.forEach(el => el.setAttribute('ez-id', id));
-			selectAll(this.core).forEach(el => el.setAttribute('ez-id', id));
 			return this;
 		} else {
 			return this.core[0].getAttribute('ez-id');
@@ -69,7 +67,6 @@ class EZComponent { // EZComponent class
 	className(className) {
 		if (className) {
 			this.core.forEach(el => el.setAttribute('class', className));
-			selectAll(this.core).forEach(el => el.setAttribute('class', className));
 			return this;
 		} else {
 			return this.core[0].getAttribute('className');
@@ -93,8 +90,7 @@ class EZComponent { // EZComponent class
 
 	text(text) {
 		if (text) {
-			this.core.forEach(el => el.innerText = text);
-			selectAll(this.core).forEach(el => el.innerText = text);
+			forEach(this, el => el.innerText = text);
 			return this;
 		} else {
 			return this.core[0].innerText;
@@ -102,8 +98,7 @@ class EZComponent { // EZComponent class
 	}
 	html(text) {
 		if (text) {
-			this.core.forEach(el => el.innerHTML = text);
-			selectAll(this.core).forEach(el => el.innerHTML = text);
+			forEach(this, el => el.innerHTML = text);
 			return this;
 		} else {
 			return this.core[0].innerHTML;
@@ -112,8 +107,7 @@ class EZComponent { // EZComponent class
 
 	attr(prop, val) {
 		if (val) {
-			this.core.forEach(el => el.setAttribute(prop, val));
-			selectAll(this.core).forEach(el => el.setAttribute(prop, val));
+			forEach(this, el => el.setAttribute(prop, val));
 			return this;
 		} else {
 			return this.core[0].getAttribute(prop);
@@ -129,23 +123,22 @@ class EZComponent { // EZComponent class
 			return this.core[index];
 		} else {
 			if (!this.__selected__) throw new Error('Cannot get "index" of a component');
-			let el = ez.select(this, true);
-			return Array.from(el.parentElement.children).indexOf(el);
+			return this.core[0].parentElement.childArray.indexOf(this.core[0]);
 		}
 	}
 
 	/* Placement */
 	appendTo(selector) {
-		ez.select(selector, true).forEach(el => el.appendChild(unique(this.core[0])));
+		ez.select(selector).core.forEach(el => el.appendChild(unique(this.core[0])));
 	}
 	prependTo(selector) {
-		ez.select(selector, true).forEach(el => el.prependChild(unique(this.core[0])));
+		ez.select(selector).core.forEach(el => el.prependChild(unique(this.core[0])));
 	}
 	addBefore(selector) {
-		ez.select(selector, true).forEach(el => el.parentElement.insertBefore(unique(this.core[0]), el));
+		ez.select(selector).core.forEach(el => el.parentElement.insertBefore(unique(this.core[0]), el));
 	}
 	addAfter(selector) {
-		ez.select(selector, true).forEach(el => el.parentElement.insertAfter(unique(this.core[0]), el));
+		ez.select(selector).core.forEach(el => el.parentElement.insertAfter(unique(this.core[0]), el));
 	}
 
 	/* Utility */
@@ -188,15 +181,17 @@ function objToSelector(obj) {
 	return selector;
 }
 
-function selectAll(array) {
-	array = array.map(el => el.getAttribute('ez-id'));
-	let selector = array.map(el => `[ez-id="${el}"]`).join(', ');
-	let id = gen();
+function selectAll(selector) {
 	let list = [];
 	document.querySelectorAll(selector).forEach(el => el.setAttribute('ez-select', gen()));
 	document.querySelectorAll(selector).forEach(el => list.push(document.querySelector(`[ez-select="${el.getAttribute('ez-select')}"]`)));
 	document.querySelectorAll(`[ez-select]`).forEach(el => el.removeAttribute('ez-select'));
 	return list;
+}
+
+function forEach(component, func) {
+	component.core.forEach(func);
+	ez.select(component).core.forEach(func);
 }
 
 function copy(obj) {
@@ -221,20 +216,25 @@ const ez = {
 		let selection;
 		let obj;
 		if (selector instanceof EZComponent) {
-			selection = document.querySelectorAll(`[ez-id="${selector.attr('ez-id')}"]`);
+			selection = selectAll(`[ez-id="${selector.attr('ez-id')}"]`);
 		} else if (typeof selector === 'object') {
-			selection = document.querySelectorAll(objToSelector(selector));
+			selection = selectAll(objToSelector(selector));
 		} else {
-			selection = document.querySelectorAll(selector);
+			selection = selectAll(selector);
 		}
-		selection = Array.from(selection || []);
 		if (raw) {
 			return selection;
 		} else {
-			obj = new EZComponent(selection.shift().outerHTML);
+			obj = new EZComponent('p'); // dummy element
 			obj.__selected__ = true;
-			selection.map(el => obj.__create__(el.outerHTML));
+			obj.core = selection; // insert actual selection
 			return obj;
 		}
 	}
 };
+
+Object.defineProperty(HTMLElement.prototype, "childArray", {
+	get: function () {
+		return Array.from(this.children);
+	}
+});
