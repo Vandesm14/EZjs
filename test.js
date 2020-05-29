@@ -35,8 +35,8 @@ function test(name, x, is) {
 			if (log) {
 				console.log(log)
 			} else {
-				console.log('%o', this.x);
-				console.log('%o', this.is);
+				console.log('x:%o', this.x);
+				console.log('is:%o', this.is);
 			}
 		}
 	};
