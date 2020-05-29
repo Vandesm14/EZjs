@@ -27,10 +27,10 @@ class EZComponent { // EZComponent class
 	}
 	id(id) {
 		if (id) {
-			this.core.first.setAttribute('id', id);
+			this.core.first.id = id;
 			return this;
 		} else {
-			return this.first.getAttribute('id');
+			return this.first.id;
 		}
 	}
 	ezid(id) {
@@ -46,7 +46,7 @@ class EZComponent { // EZComponent class
 			console.warn('Cannot set the unique id of an EZComponent');
 			return this;
 		} else {
-			return this.first.getAttribute('ez-uid');
+			return ez.select(this).first.getAttribute('ez-uid');
 		}
 	}
 
@@ -273,7 +273,7 @@ function create(data, prop, text) {
 		}
 	}
 	try {
-		data.setAttribute('ez-id', gen());
+		if (!data.getAttribute('ez-id')) data.setAttribute('ez-id', gen());
 	} catch (error) {
 		throw new Error(`Element "${data.tagName || 'unkown'}" cannot be made into an EZComponent`);
 	}
