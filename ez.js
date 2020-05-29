@@ -22,12 +22,12 @@ class EZComponent { // EZComponent class
 			}
 			return this;
 		} else {
-			return this.first.tag;
+			return this.first.tagName.toLowerCase();
 		}
 	}
 	id(id) {
 		if (id) {
-			this.core.forEach(el => el.setAttribute('id', id));
+			this.core.first.setAttribute('id', id);
 			return this;
 		} else {
 			return this.first.getAttribute('id');
@@ -35,7 +35,7 @@ class EZComponent { // EZComponent class
 	}
 	ezid(id) {
 		if (id) {
-			this.core.forEach(el => el.setAttribute('ez-id', id));
+			forEach(this, el => el.setAttribute('ez-id', id));
 			return this;
 		} else {
 			return this.first.getAttribute('ez-id');
@@ -52,26 +52,26 @@ class EZComponent { // EZComponent class
 
 	className(className) {
 		if (className) {
-			this.core.forEach(el => el.setAttribute('class', className));
+			forEach(this, el => el.setAttribute('class', className));
 			return this;
 		} else {
 			return this.first.getAttribute('className');
 		}
 	}
 	addClass(className) {
-		this.first.classList.add(className);
+		forEach(this, el => el.classList.add(className));
 		return this;
 	}
 	removeClass(className) {
-		this.first.classList.remove(className);
+		forEach(this, el => el.classList.remove(className));
 		return this;
 	}
 	toggleClass(className) {
-		this.first.classList.toggle(className)
+		forEach(this, el => el.classList.toggle(className));
 		return this;
 	}
 	hasClass(className) {
-		return this.first.classList.contains(className);
+		forEach(this, el => el.classList.contains(className));
 	}
 
 	text(text) {
@@ -124,6 +124,16 @@ class EZComponent { // EZComponent class
 	/* Utility */
 	raw() {
 		return this.first.outerHTML;
+	}
+
+	simple() {
+		let tag = this.first.tagName.toLowerCase();
+		let text = this.first.innerHTML;
+		if (this.first.outerHTML.indexOf('/') !== -1) {
+			return `<${tag}>${text}</${tag}>`;
+		} else {
+			return `<${tag}/>`;
+		}
 	}
 
 	/* --------- Selection Only Methods --------- */
@@ -265,7 +275,7 @@ function create(data, prop, text) {
 	try {
 		data.setAttribute('ez-id', gen());
 	} catch (error) {
-		throw new Error(`Element "${data.tag || 'unkown'}" cannot be made into an EZComponent`);
+		throw new Error(`Element "${data.tagName || 'unkown'}" cannot be made into an EZComponent`);
 	}
 	return data;
 }
@@ -295,7 +305,7 @@ const ez = {
 			if (prop === true) obj.__selected__ = true;
 			obj.core = [];
 			for (let i in data) {
-				obj.core.push(create(data[i]));
+				if (data[i] instanceof HTMLElement)	obj.core.push(data[i]);
 			}
 		} else {
 			obj = new EZComponent(create(data, true)); // dummy element
@@ -336,4 +346,3 @@ Object.defineProperty(EZComponent.prototype, 'first', {
 	},
 	set: function (data) {}
 });
-

@@ -1,37 +1,28 @@
-/* Test Creating Elements */
-// ez.create({tag: 'p', id: 'test', html: 'Hello World', 'ez-id': 1235}).appendTo('body');
-// ez.create({tag: 'p', id: 'test', text: 'Hello World', 'ez-id': 1235}).appendTo('body');
-// ez.create('<p id="test" ez-id="1235">Hello World</p>').appendTo('body');
+let body = document.querySelector('body');
 
-/* Test Internal Selectors */
-// let el = ez.create('<p id="test">Hello World</p>');
-// let el2 = ez.create('<p id="test2">Number Two</p>');
-// el.appendTo('body');
-// el2.appendTo(el);
-// el2.appendTo(el2);
-// el2.attr('hey', 'hey');
+let el1 = ez.create('<p>Number One</p>'); // raw
+let el2 = ez.create('p').text('Number Two'); // tag
+let el3 = ez.create('p', {class: 'card'}, 'I am a card'); // react
 
-/* Test Live Components */
-// let el1 = ez.create('<p>Number One</p>');
-// let el2 = ez.create('<p>Number Two</p>');
-// el1.appendTo('body');
-// el1.appendTo('body');
-// el2.appendTo('body');
-// el2.appendTo('body');
-// el1.text('Number 1');
-// el2.text('Number 2');
+test('create/raw', el1.simple(), '<p>Number One</p>');
+test('create/tag', el2.simple(), '<p>Number Two</p>');
+test('create/react', el3.simple(), '<p>I am a card</p>');
+test('create/html', ez.create(body).tag(), 'body');
+test('create/ez', ez.create(el1).simple(), '<p>Number One</p>');
 
-/* Test Utility Methods */
-let el1 = ez.create('<p>Number One</p>');
-let el2 = ez.create('p').text('Number Two');
-let el3 = ez.create('p', {class: 'card'}, 'I am a card');
 el1.appendTo('body');
 el1.appendTo('body');
 el2.appendTo('body');
 el2.appendTo('body');
 el3.appendTo('body');
-console.log(ez.select(el2).index());
 
-console.log(ez.select(el2).parent());
-console.log(ez.select(el2).children());
-console.log(ez.select('body').children());
+test('append', body.childArray.length, 7);
+
+test('select/ez', ez.select(el2).parent().children().core, body.childArray);
+test('select/obj', ez.select({tag: 'body'}).children().core, body.childArray);
+test('select/sel', ez.select('body').children().core, body.childArray);
+
+test('index/get', ez.select(el2).index(), 4);
+
+test('parent/set', ()=>{ez.select(el2).parent().addClass('test'); return body.classList.contains('test')}, true);
+test('children/set', ()=>{ez.select('body').children().addClass('test'); return body.children[0].classList.contains('test')}, true);
