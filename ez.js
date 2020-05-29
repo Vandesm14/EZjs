@@ -1,4 +1,3 @@
-let DOM;
 
 class EZComponent { // EZComponent class
 	constructor(data) { // Constructor
@@ -11,7 +10,7 @@ class EZComponent { // EZComponent class
 		this.core.push(data);
 	}
 
-	/* Properties */
+	/* Attribute */
 	tag(tag) {
 		// FIXME: Auto-Regenerate element with new tag if live
 		if (tag) {
@@ -49,7 +48,6 @@ class EZComponent { // EZComponent class
 			return ez.select(this).first.getAttribute('ez-uid');
 		}
 	}
-
 	className(className) {
 		if (className) {
 			forEach(this, el => el.setAttribute('class', className));
@@ -58,6 +56,47 @@ class EZComponent { // EZComponent class
 			return this.first.getAttribute('className');
 		}
 	}
+	html(text) {
+		if (text) {
+			forEach(this, el => el.innerHTML = text);
+			return this;
+		} else {
+			return this.first.innerHTML;
+		}
+	}
+	text(text) {
+		if (text) {
+			forEach(this, el => el.innerText = text);
+			return this;
+		} else {
+			return this.first.innerText;
+		}
+	}
+	raw() {
+		return this.first.outerHTML;
+	}
+	simple() {
+		let tag = this.first.tagName.toLowerCase();
+		let text = this.first.innerHTML;
+		if (this.first.outerHTML.indexOf('/') !== -1) {
+			return `<${tag}>${text}</${tag}>`;
+		} else {
+			return `<${tag}/>`;
+		}
+	}
+	attr(prop, val) {
+		if (val) {
+			forEach(this, el => el.setAttribute(prop, val));
+			return this;
+		} else {
+			return this.first.getAttribute(prop);
+		}
+	}
+	hasAttr(prop) {
+		return !!this.first.getAttribute(prop);
+	}
+
+	/* Class */
 	addClass(className) {
 		forEach(this, el => el.classList.add(className));
 		return this;
@@ -74,42 +113,34 @@ class EZComponent { // EZComponent class
 		forEach(this, el => el.classList.contains(className));
 	}
 
-	text(text) {
-		if (text) {
-			forEach(this, el => el.innerText = text);
-			return this;
-		} else {
-			return this.first.innerText;
-		}
+	/* DOM */
+	index() {
+		if (!this.__selected__) throw new Error('Cannot get "index" of a component');
+		return this.first.parentElement.childArray.indexOf(this.core[0]);
 	}
-	html(text) {
-		if (text) {
-			forEach(this, el => el.innerHTML = text);
-			return this;
-		} else {
-			return this.first.innerHTML;
-		}
+	parent() {
+		if (!this.__selected__) throw new Error('Cannot get "parent" of a component');
+		return ez.copy(this.first.parentElement);
+	}
+	children() {
+		if (!this.__selected__) throw new Error('Cannot get "children" of a component');
+		return ez.copy(this.first.childArray, true);
 	}
 
-	attr(prop, val) {
-		if (val) {
-			forEach(this, el => el.setAttribute(prop, val));
-			return this;
-		} else {
-			return this.first.getAttribute(prop);
-		}
-	}
-	hasAttr(prop) {
-		return !!this.first.getAttribute(prop);
+	/* Function */
+	each(func) {
+		if (!this.__selected__) throw new Error('Cannot loop through a component');
+		this.core.forEach(func);
+		return this;
 	}
 
 	/* Placement */
-	appendTo(selector) {
-		ez.select(selector).core.forEach(el => el.appendChild(unique(this.first)));
-		return this;
-	}
 	prependTo(selector) {
 		ez.select(selector).core.forEach(el => el.prependChild(unique(this.first)));
+		return this;
+	}
+	appendTo(selector) {
+		ez.select(selector).core.forEach(el => el.appendChild(unique(this.first)));
 		return this;
 	}
 	addBefore(selector) {
@@ -119,43 +150,6 @@ class EZComponent { // EZComponent class
 	addAfter(selector) {
 		ez.select(selector).core.forEach(el => el.parentElement.insertAfter(unique(this.first), el));
 		return this;
-	}
-
-	/* Utility */
-	raw() {
-		return this.first.outerHTML;
-	}
-
-	simple() {
-		let tag = this.first.tagName.toLowerCase();
-		let text = this.first.innerHTML;
-		if (this.first.outerHTML.indexOf('/') !== -1) {
-			return `<${tag}>${text}</${tag}>`;
-		} else {
-			return `<${tag}/>`;
-		}
-	}
-
-	/* --------- Selection Only Methods --------- */
-	index() {
-		if (!this.__selected__) throw new Error('Cannot get "index" of a component');
-		return this.first.parentElement.childArray.indexOf(this.core[0]);
-	}
-
-	each(func) {
-		if (!this.__selected__) throw new Error('Cannot loop through a component');
-		this.core.forEach(func);
-		return this;
-	}
-
-	parent() {
-		if (!this.__selected__) throw new Error('Cannot get "parent" of a component');
-		return ez.copy(this.first.parentElement);
-	}
-
-	children() {
-		if (!this.__selected__) throw new Error('Cannot get "children" of a component');
-		return ez.copy(this.first.childArray, true);
 	}
 }
 
