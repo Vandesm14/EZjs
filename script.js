@@ -24,9 +24,14 @@
 /* Test Utility Methods */
 let el1 = ez.create('<p>Number One</p>');
 let el2 = ez.create('p').text('Number Two');
+let el3 = ez.create('p', {class: 'card'}, 'I am a card');
 el1.appendTo('body');
 el1.appendTo('body');
 el2.appendTo('body');
 el2.appendTo('body');
-// console.log(ez.select(el2, true)[0].parentElement.children);
+el3.appendTo('body');
 console.log(ez.select(el2).index());
+
+console.log(ez.select(el2).parent());
+console.log(ez.select(el2).children());
+console.log(ez.select('body').children());
