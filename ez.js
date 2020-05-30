@@ -222,7 +222,7 @@ class EZComponent { // EZComponent class
 		} else if (target instanceof EZComponent) {
 			// Do nothing
 		} else {
-			target = select(target);
+			target = ez.select(target);
 		}
 		forEach(target, el => el.setAttribute('ez-id', this.first.getAttribute('ez-id')));
 		return this;

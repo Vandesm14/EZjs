@@ -75,8 +75,11 @@ test('function/each', () => {
 }, box.childArray.map(el => el.id));
 
 test('component/clone', comp.clone().ezid() !== comp.ezid());
-test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
 test('component/createFromHTML', ez.create(box2).ezid(), null);
 test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
+test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
+
+comp.link('#box2 > p').text('Linked');
+test('component/link', box2.children[0].innerText === 'Linked');
 
 done();
