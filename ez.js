@@ -79,6 +79,10 @@ class EZComponent { // EZComponent class
 	hasAttr(prop) {
 		return !!this.first.getAttribute(prop);
 	}
+	empty() {
+		forEach(this, el => el.innerText = '');
+		return this;
+	}
 
 	/* Class */
 	addClass(className) {
@@ -195,6 +199,25 @@ class EZComponent { // EZComponent class
 	addAfter(selector) {
 		ez.select(selector).core.forEach(el => el.parentElement.insertAfter(unique(this.first), el));
 		return this;
+	}
+	insert(selector, index) {
+		ez.select(selector).core.forEach(el => {
+			if (index === -1 || index > el.childArray.length) {
+				el.appendChild(unique(this.first), el);
+			} else {
+				el.insertBefore(unique(this.first), el.childArray[index]);
+			}
+		});
+		return this;
+}
+	remove() {
+		ez.select(selector).core.forEach(el => el.remove());
+		return this;
+	}
+
+	/* Component */
+	clone() {
+		return ez.copy(this);
 	}
 }
 
@@ -347,7 +370,7 @@ const ez = {
 			comp.__selected__ = true;
 			return comp;
 		} else if (Array.isArray(data)) {
-			obj = new EZComponent(create(data, true)); // dummy element
+			obj = new EZComponent(create('p', true)); // dummy element
 			if (prop === true) obj.__selected__ = true;
 			obj.core = [];
 			for (let i in data) {

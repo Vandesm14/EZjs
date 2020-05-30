@@ -31,10 +31,12 @@ function test(name, x, is) {
 	return {
 		x,
 		is,
+		name,
 		log: function (log) {
 			if (log) {
 				console.log(log)
 			} else {
+				if (expanded !== 2) console.log(`%cTEST: %c"${name.replace('/', ' / ')}"`, 'color: blue; font-weight: 900', 'font-weight: 900');
 				console.log('x:%o', this.x);
 				console.log('is:%o', this.is);
 			}

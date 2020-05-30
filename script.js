@@ -1,4 +1,5 @@
 let box = document.querySelector('#box');
+let box2 = document.querySelector('#box2');
 
 let parent = ez.create('<p>Number One</p>'); // raw
 let child = ez.create('p').text('Number Two'); // tag
@@ -17,21 +18,24 @@ parent.appendTo('#box');
 
 child.appendTo(parent);
 comp.appendTo(parent);
-
 comp.appendTo('#box');
 
-test('append', box.childArray.length, 3);
+test('placement/appendTo', box.childArray.length, 3);
 
 test('select/ez', ez.select(parent).parent().children().core, box.childArray);
 test('select/obj', ez.select({tag: '#box'}).children().core, box.childArray);
 test('select/selector', ez.select('#box').children().core, box.childArray);
 
-test('index/get', child.index(), 0);
+test('attr/index', child.index(), 0);
 
 comp.text('Component write');
-test('text/component', document.querySelector(`[ez-uid="${comp.ezuid()}"]`).innerText, 'Component write');
+test('attr/text/component', box.children[0].children[1].innerText, 'Component write');
 ez.select(comp).text('Select write');
-test('text/selelect', document.querySelector(`[ez-uid="${comp.ezuid()}"]`).innerText, 'Select write');
+test('attr/text/selelect', box.children[0].children[1].innerText, 'Select write');
+
+ez.select(comp).empty();
+test('attr/empty', box.children[0].children[1].innerText, '');
+ez.select(comp).text('Select write');
 
 parent.parent().addClass('test');
 test('dom/parent', box.classList.contains('test'));
@@ -57,6 +61,8 @@ test('dom/filter', ez.select('#box').children().filter(comp).first, box.childArr
 test('dom/not', ez.select('#box').children().not(parent).first, box.childArray[2]);
 test('dom/not', ez.select('#box').children().filter(parent).every(parent));
 
-test('each', ()=>{let x = []; ez.select('#box').children().each(el => x.push(ez.copy(el).id())); return x}, document.querySelector('#box').childArray.map(el => el.id));
+test('function/each', ()=>{let x = []; ez.select('#box').children().each(el => x.push(ez.copy(el).id())); return x}, box.childArray.map(el => el.id));
+
+// test('component/clone', ez.copy(comp).ezid() !== comp.ezid());
 
 done();
