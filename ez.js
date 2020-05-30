@@ -217,6 +217,13 @@ class EZComponent { // EZComponent class
 
 	/* Component */
 	link(target) {
+		if (target instanceof HTMLElement) {
+			target = new EZComponent(create(target));
+		} else if (target instanceof EZComponent) {
+			// Do nothing
+		} else {
+			target = select(target);
+		}
 		forEach(target, el => el.setAttribute('ez-id', this.first.getAttribute('ez-id')));
 		return this;
 	}
