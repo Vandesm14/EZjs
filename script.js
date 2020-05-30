@@ -26,14 +26,12 @@ test('placement/appendTo', box.childArray.length, 3);
 
 test('select/ez', ez.select(parent).parent().children().core, box.childArray);
 test('select/obj', ez.select({
-	tag: '#box'
+	id: 'box'
 }).children().core, box.childArray);
 test('select/selector', ez.select('#box').children().core, box.childArray);
 
 comp.attr('test', 'good');
 test('attr', box.children[0].children[1].getAttribute('test') === 'good');
-
-test('attr/index', child.index(), 0);
 
 comp.text('Component write');
 test('attr/text/component', box.children[0].children[1].innerText, 'Component write');
@@ -43,6 +41,9 @@ test('attr/text/selelect', box.children[0].children[1].innerText, 'Select write'
 ez.select(comp).empty();
 test('attr/empty', box.children[0].children[1].innerText, '');
 ez.select(comp).text('Select write');
+
+test('dom/index', child.index(), 0);
+test('dom/eq', ez.select('#box2').children().eq(1).text(), box2.children[1].innerText);
 
 parent.parent().addClass('test');
 test('dom/parent', box.classList.contains('test'));
@@ -64,8 +65,8 @@ comp.closest(parent).addClass('test');
 test('dom/closest', box.children[0].classList.contains('test'));
 comp.closest(parent).removeClass('test');
 
-test('dom/filter', ez.select('#box').children().filter(comp).first, box.childArray[2]);
-test('dom/not', ez.select('#box').children().not(parent).first, box.childArray[2]);
+test('dom/filter', ez.select('#box').children().filter(comp).main, box.childArray[2]);
+test('dom/not', ez.select('#box').children().not(parent).main, box.childArray[2]);
 test('dom/not', ez.select('#box').children().filter(parent).every(parent));
 
 test('function/each', () => {
@@ -79,7 +80,7 @@ test('component/createFromHTML', ez.create(box2).ezid(), null);
 test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
 test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
 
-comp.link('#box2 > p').text('Linked');
-test('component/link', box2.children[0].innerText === 'Linked');
+// comp.link('#box2 > p').text('Linked');
+// test('component/link', box2.children[0].innerText === 'Linked');
 
 done();

@@ -11,14 +11,14 @@ class EZComponent { // EZComponent class
 
 	/* Attribute */
 	tag() {
-		return this.first.tagName.toLowerCase();
+		return this.main.tagName.toLowerCase();
 	}
 	id(id) {
 		if (id) {
-			this.core.first.id = id;
+			this.core.main.id = id;
 			return this;
 		} else {
-			return this.first.id;
+			return this.main.id;
 		}
 	}
 	ezid(id) {
@@ -26,18 +26,18 @@ class EZComponent { // EZComponent class
 			forEach(this, el => el.setAttribute('ez-id', id));
 			return this;
 		} else {
-			return this.first.getAttribute('ez-id');
+			return this.main.getAttribute('ez-id');
 		}
 	}
 	ezuid() {
-		return ez.select(this).first.getAttribute('ez-uid');
+		return ez.select(this).main.getAttribute('ez-uid');
 	}
 	className(className) {
 		if (className) {
 			forEach(this, el => el.setAttribute('class', className));
 			return this;
 		} else {
-			return this.first.getAttribute('className');
+			return this.main.getAttribute('className');
 		}
 	}
 	html(text) {
@@ -45,7 +45,7 @@ class EZComponent { // EZComponent class
 			forEach(this, el => el.innerHTML = text);
 			return this;
 		} else {
-			return this.first.innerHTML;
+			return this.main.innerHTML;
 		}
 	}
 	text(text) {
@@ -53,16 +53,16 @@ class EZComponent { // EZComponent class
 			forEach(this, el => el.innerText = text);
 			return this;
 		} else {
-			return this.first.innerText;
+			return this.main.innerText;
 		}
 	}
 	raw() {
-		return this.first.outerHTML;
+		return this.main.outerHTML;
 	}
 	simple() {
-		let tag = this.first.tagName.toLowerCase();
-		let text = this.first.innerHTML;
-		if (this.first.outerHTML.indexOf('/') !== -1) {
+		let tag = this.main.tagName.toLowerCase();
+		let text = this.main.innerHTML;
+		if (this.main.outerHTML.indexOf('/') !== -1) {
 			return `<${tag}>${text}</${tag}>`;
 		} else {
 			return `<${tag}/>`;
@@ -73,11 +73,11 @@ class EZComponent { // EZComponent class
 			forEach(this, el => el.setAttribute(prop, val));
 			return this;
 		} else {
-			return this.first.getAttribute(prop);
+			return this.main.getAttribute(prop);
 		}
 	}
 	hasAttr(prop) {
-		return !!this.first.getAttribute(prop);
+		return !!this.main.getAttribute(prop);
 	}
 	empty() {
 		forEach(this, el => el.innerText = '');
@@ -98,54 +98,89 @@ class EZComponent { // EZComponent class
 		return this;
 	}
 	hasClass(className) {
-		return this.first.classList.contains(className);
+		return this.main.classList.contains(className);
 	}
 
 	/* DOM */
 	index() {
 		if (this.__selected__) {
-			return this.first.parentElement.childArray.indexOf(this.first);
+			return this.main.parentElement.childArray.indexOf(this.main);
 		} else {
-			return ez.select(this).first.parentElement.childArray.indexOf(ez.select(this).first);
+			return ez.select(this).main.parentElement.childArray.indexOf(ez.select(this).main);
+		}
+	}
+	eq(index) {
+		if (this.__selected__) {
+			return ez.create(this.core[index]).selected(true);
+		} else {
+			return ez.create(ez.select(this).core[index]).selected(true);
 		}
 	}
 	parent() {
 		if (this.__selected__) {
-			return ez.create(this.first.parentElement).selected(true);
+			return ez.create(this.main.parentElement).selected(true);
 		} else {
-			return ez.create(ez.select(this).first.parentElement);
+			return ez.create(ez.select(this).main.parentElement);
 		}
 	}
 	children(selector) {
 		selector = select(selector);
 		if (selector) {
 			if (this.__selected__) {
-				return ez.create(selectAll(selector, this.first)).selected(true);
+				return ez.create(selectAll(selector, this.main)).selected(true);
 			} else {
-				return ez.create(selectAll(selector, ez.select(this).first)).selected(true);
+				return ez.create(selectAll(selector, ez.select(this).main)).selected(true);
 			}
 		} else {
 			if (this.__selected__) {
-				return ez.create(this.first.childArray).selected(true);
+				return ez.create(this.main.childArray).selected(true);
 			} else {
-				return ez.create(ez.select(this).first.childArray).selected(true);
+				return ez.create(ez.select(this).main.childArray).selected(true);
 			}
 		}
 	}
 	find(selector) {
 		selector = select(selector);
 		if (this.__selected__) {
-			return ez.create(this.first.childArray.filter(el => el.matches(selector))).selected(true);
+			return ez.create(this.main.childArray.filter(el => el.matches(selector))).selected(true);
 		} else {
-			return ez.create(ez.select(this).first.childArray.filter(el => el.matches(selector))).selected(true);
+			return ez.create(ez.select(this).main.childArray.filter(el => el.matches(selector))).selected(true);
+		}
+	}
+	prev() {
+		if (this.__selected__) {
+			return ez.create(this.main.prev).selected(true);
+		} else {
+			return ez.create(ez.select(this).main.prev).selected(true);
+		}
+	}
+	next() {
+		if (this.__selected__) {
+			return ez.create(this.main.next).selected(true);
+		} else {
+			return ez.create(ez.select(this).main.next).selected(true);
+		}
+	}
+	first() {
+		if (this.__selected__) {
+			return ez.create(this.core[0]).selected(true);
+		} else {
+			return ez.create(ez.select(this).core[0]).selected(true);
+		}
+	}
+	last() {
+		if (this.__selected__) {
+			return ez.create(this.core[this.core.length - 1]).selected(true);
+		} else {
+			return ez.create(ez.select(this).core[ez.select(this).core.length - 1]).selected(true);
 		}
 	}
 	closest(selector) {
 		selector = select(selector);
 		if (this.__selected__) {
-			return ez.create(this.first.closest(selector)).selected(true);
+			return ez.create(this.main.closest(selector)).selected(true);
 		} else {
-			return ez.create(ez.select(this).first.closest(selector)).selected(true);
+			return ez.create(ez.select(this).main.closest(selector)).selected(true);
 		}
 	}
 	filter(selector) {
@@ -184,30 +219,70 @@ class EZComponent { // EZComponent class
 	}
 
 	/* Placement */
-	prependTo(selector) {
-		ez.select(selector).core.forEach(el => el.prependChild(unique(this.first)));
+	prependTo(selector, destroy) {
+		if (destroy && this.__selected__) {
+			ez.select(selector).main.prependChild(this.main);
+		} else {
+			ez.select(selector).core.forEach(el => el.prependChild(unique(this.main)));
+		}
 		return this;
 	}
-	appendTo(selector) {
-		ez.select(selector).core.forEach(el => el.appendChild(unique(this.first)));
+	appendTo(selector, destroy) {
+		if (destroy && this.__selected__) {
+			ez.select(selector).main.appendChild(this.main);
+		} else {
+			ez.select(selector).core.forEach(el => el.appendChild(unique(this.main)));
+		}
 		return this;
 	}
-	addBefore(selector) {
-		ez.select(selector).core.forEach(el => el.parentElement.insertBefore(unique(this.first), el));
+	addBefore(selector, destroy) {
+		if (destroy && this.__selected__) {
+			ez.select(selector).main.parentElement.insertBefore(this.main, ez.select(selector).main);
+		} else {
+			ez.select(selector).core.forEach(el => el.parentElement.insertBefore(unique(this.main), el));
+		}
 		return this;
 	}
-	addAfter(selector) {
-		ez.select(selector).core.forEach(el => el.parentElement.insertAfter(unique(this.first), el));
+	addAfter(selector, destroy) {
+		if (destroy && this.__selected__) {
+			ez.select(selector).main.parentElement.insertBefore(this.main, ez.select(selector).main.nextSibling);
+		} else {
+			ez.select(selector).core.forEach(el => el.parentElement.insertBefore(unique(this.main), el.nextSibling));
+		}
 		return this;
 	}
 	insert(selector, index) {
 		ez.select(selector).core.forEach(el => {
 			if (index === -1 || index > el.childArray.length) {
-				el.appendChild(unique(this.first), el);
+				el.appendChild(unique(this.main), el);
 			} else {
-				el.insertBefore(unique(this.first), el.childArray[index]);
+				el.insertBefore(unique(this.main), el.childArray[index]);
 			}
 		});
+		return this;
+	}
+	moveUp() {
+		if (this.__selected__) {
+			if (this.main.prev && this.main.prev.parentElement) {
+				this.main.prev.parentElement.insertBefore(this.main, this.main.prev);
+			}
+		} else {
+			if (ez.select(this).main.prev && ez.select(this).main.prev.parentElement) {
+				ez.select(this).main.prev.parentElement.insertBefore(ez.select(this).main, ez.select(this).main.prev);
+			}
+		}
+		return this;
+	}
+	moveDown() {
+		if (this.__selected__) {
+			if (this.main.next && this.main.next.parentElement) {
+				this.main.next.parentElement.insertBefore(this.main, this.main.next.nextSibling);
+			}
+		} else {
+			if (ez.select(this).main.next && ez.select(this).main.next.parentElement) {
+				ez.select(this).main.next.parentElement.insertBefore(ez.select(this).main, ez.select(this).main.next.nextSibling);
+			}
+		}
 		return this;
 	}
 	remove() {
@@ -224,12 +299,12 @@ class EZComponent { // EZComponent class
 		} else {
 			target = ez.select(target);
 		}
-		forEach(target, el => el.setAttribute('ez-id', this.first.getAttribute('ez-id')));
+		forEach(target, el => el.setAttribute('ez-id', this.main.getAttribute('ez-id')));
 		return this;
 	}
 	linkTo(target) {
 		if (!target || !(target instanceof EZComponent)) throw new Error('Component is not an EZComponent');
-		forEach(this, el => el.setAttribute('ez-id', target.first.getAttribute('ez-id')));
+		forEach(this, el => el.setAttribute('ez-id', target.main.getAttribute('ez-id')));
 		return target;
 	}
 	clone(selected) {
@@ -256,19 +331,12 @@ function rawToElement(raw) {
 
 function objToSelector(obj) {
 	let selector = '';
-	if (obj.tag) selector += obj.tag;
-	if (obj.prop) {
-		if (obj.prop.id) {
-			selector += `#${obj.prop.id}`;
-			delete obj.prop.id;
-		}
-		if (obj.prop.className) {
-			selector += `.${obj.prop.className}`;
-			delete obj.prop.className;
-		}
-		for (let prop in obj.prop) {
-			selector += `${prop}="${obj.prop[prop]}"`;
-		}
+	if (obj.tag) {
+		selector = obj.tag;
+		delete obj.tag;
+	}
+	for (let prop of Object.keys(obj)) {
+		selector += `[${prop}="${obj[prop]}"]`;
 	}
 	return selector;
 }
@@ -300,7 +368,7 @@ function unique(element) {
 }
 
 function gen() {
-	return ((+new Date()) * Math.round(Math.random() * Math.pow(10,10))).toString(36);
+	return ((+new Date()) * Math.round(Math.random() * Math.pow(10, 10))).toString(36);
 }
 
 function reactToElement(data, prop, text) {
@@ -341,7 +409,7 @@ function create(data, clone) {
 	let element = false;
 	let id = gen();
 	if (data instanceof EZComponent) {
-		data = data.first;
+		data = data.main;
 		if (clone) { // If clone is true: do not clone component
 			data = data.cloneNode(true);
 		}
@@ -405,17 +473,18 @@ const ez = {
 		}
 		return obj;
 	},
-	select: function (selector, raw) {
+	select: function (selector) {
 		let obj;
-		let selection = selectAll(select(selector));
-		if (raw) {
-			return selection;
+		let selection;
+		if (selector instanceof HTMLElement) {
+			selection = [selector];
 		} else {
-			obj = new EZComponent(create('p')); // dummy element
-			obj.__selected__ = true;
-			obj.core = selection; // insert actual selection
-			return obj;
+			selection = selectAll(select(selector));
 		}
+		obj = new EZComponent(create('p')); // dummy element
+		obj.__selected__ = true;
+		obj.core = selection; // insert actual selection
+		return obj;
 	}
 };
 
@@ -425,7 +494,18 @@ Object.defineProperty(HTMLElement.prototype, 'childArray', {
 	}
 });
 
-Object.defineProperty(EZComponent.prototype, 'first', {
+Object.defineProperty(HTMLElement.prototype, 'prev', {
+	get: function () {
+		return this.previousElementSibling;
+	}
+});
+Object.defineProperty(HTMLElement.prototype, 'next', {
+	get: function () {
+		return this.nextElementSibling;
+	}
+});
+
+Object.defineProperty(EZComponent.prototype, 'main', {
 	get: function () {
 		return this.core[0];
 	},
