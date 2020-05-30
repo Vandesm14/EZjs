@@ -216,9 +216,18 @@ class EZComponent { // EZComponent class
 	}
 
 	/* Component */
+	link(target) {
+		forEach(target, el => el.setAttribute('ez-id', this.first.getAttribute('ez-id')));
+		return this;
+	}
+	linkTo(target) {
+		if (!target || !(target instanceof EZComponent)) throw new Error('Component is not an EZComponent');
+		forEach(this, el => el.setAttribute('ez-id', target.first.getAttribute('ez-id')));
+		return target;
+	}
 	clone(selected) {
 		let obj = new EZComponent(create('p', true)); // dummy element
-		let id = gen()
+		let id = gen();
 		forEach(obj, el => el.cloneNode(true));
 		if (selected) obj.__selected__ = true;
 		return obj;
@@ -257,30 +266,20 @@ function objToSelector(obj) {
 	return selector;
 }
 
-function selectAll(selector, element) {
+function selectAll(selector, element = document) {
 	let list = [];
 	let className = 'ez-select-' + gen();
-	// TODO: Use bind to make this shorter
-	if (element) {
-		element.querySelectorAll(selector).forEach(el => el.classList.add(className));
-		element.querySelectorAll(selector).forEach(el => {
-			list.push(element.querySelector(`.${className}`));
-			el.classList.remove(className);
-		});
-	} else {
-		document.querySelectorAll(selector).forEach(el => el.classList.add(className));
-		document.querySelectorAll(selector).forEach(el => {
-			list.push(document.querySelector(`.${className}`));
-			el.classList.remove(className);
-		});
-	}
+	element.querySelectorAll(selector).forEach(el => el.classList.add(className));
+	element.querySelectorAll(selector).forEach(el => {
+		list.push(element.querySelector(`.${className}`));
+		el.classList.remove(className);
+	});
 	return list;
 }
 
 function forEach(component, func) {
+	if (!component.__selected__) ez.select(component).core.forEach(func);
 	component.core.forEach(func);
-	if (component.__selected__) return;
-	ez.select(component).core.forEach(func);
 }
 
 function copy(obj) {
@@ -294,7 +293,7 @@ function unique(element) {
 }
 
 function gen() {
-	return ((+new Date()) * Math.round(Math.random() * 10 ** 10)).toString(36);
+	return ((+new Date()) * Math.round(Math.random() * Math.pow(10,10))).toString(36);
 }
 
 function reactToElement(data, prop, text) {

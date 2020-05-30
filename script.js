@@ -3,7 +3,9 @@ let box2 = document.querySelector('#box2');
 
 let parent = ez.create('<p>Number One</p>'); // raw
 let child = ez.create('p').text('Number Two'); // tag
-let comp = ez.create('p', {class: 'card'}, 'I am a card'); // react
+let comp = ez.create('p', {
+	class: 'card'
+}, 'I am a card'); // react
 
 // verbose(1);
 
@@ -23,8 +25,13 @@ comp.appendTo('#box');
 test('placement/appendTo', box.childArray.length, 3);
 
 test('select/ez', ez.select(parent).parent().children().core, box.childArray);
-test('select/obj', ez.select({tag: '#box'}).children().core, box.childArray);
+test('select/obj', ez.select({
+	tag: '#box'
+}).children().core, box.childArray);
 test('select/selector', ez.select('#box').children().core, box.childArray);
+
+comp.attr('test', 'good');
+test('attr', box.children[0].children[1].getAttribute('test') === 'good');
 
 test('attr/index', child.index(), 0);
 
@@ -61,9 +68,15 @@ test('dom/filter', ez.select('#box').children().filter(comp).first, box.childArr
 test('dom/not', ez.select('#box').children().not(parent).first, box.childArray[2]);
 test('dom/not', ez.select('#box').children().filter(parent).every(parent));
 
-test('function/each', ()=>{let x = []; ez.select('#box').children().each(el => x.push(ez.create(el).id())); return x}, box.childArray.map(el => el.id));
+test('function/each', () => {
+	let x = [];
+	ez.select('#box').children().each(el => x.push(ez.create(el).id()));
+	return x;
+}, box.childArray.map(el => el.id));
 
 test('component/clone', comp.clone().ezid() !== comp.ezid());
-test('component/createFromHTML', ez.create(box2, true).ezid() === box2.getAttribute('ez-id'));
+test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
+test('component/createFromHTML', ez.create(box2).ezid(), null);
+test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
 
 done();
