@@ -163,9 +163,9 @@ class EZComponent { // EZComponent class
 	}
 	first() {
 		if (this.__selected__) {
-			return ez.create(this.core[0]).selected(true);
+			return ez.create(this.main).selected(true);
 		} else {
-			return ez.create(ez.select(this).core[0]).selected(true);
+			return ez.create(ez.select(this).main).selected(true);
 		}
 	}
 	last() {
@@ -173,6 +173,20 @@ class EZComponent { // EZComponent class
 			return ez.create(this.core[this.core.length - 1]).selected(true);
 		} else {
 			return ez.create(ez.select(this).core[ez.select(this).core.length - 1]).selected(true);
+		}
+	}
+	firstChild() {
+		if (this.__selected__) {
+			return ez.create(this.main.children[0]).selected(true);
+		} else {
+			return ez.create(ez.select(this).main.children[0]).selected(true);
+		}
+	}
+	lastChild() {
+		if (this.__selected__) {
+			return ez.create(this.main.children[this.main.children.length - 1]).selected(true);
+		} else {
+			return ez.create(ez.select(this).main.children[ez.select(this).main.children.length - 1]).selected(true);
 		}
 	}
 	closest(selector) {
@@ -216,6 +230,12 @@ class EZComponent { // EZComponent class
 			ez.select(this).core.forEach(func);
 		}
 		return this;
+	}
+	on() {
+		forEach(this, el => {
+			el.addEventListener(...arguments);
+		});
+		return () => forEach(this, el => el.removeEventListener(...arguments));
 	}
 
 	/* Placement */
