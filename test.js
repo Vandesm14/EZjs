@@ -27,7 +27,7 @@ function test(name, x, is) {
 	total++;
 	lastTest = name.split('/')[0];
 	testGroup.push(pass === 'pass');
-	if (expanded === 2) console.log(`${newTest ? '\n' : ''}%c(${pass})%c TEST: %c"${name.replace('/', ' / ')}"`, `color: ${color}; font-weight: 900`, 'color: blue; font-weight: 900', 'font-weight: 900');
+	if (expanded === 2) console.log(`${newTest ? '\n' : ''}%c(${pass})%c TEST: %c"${name.replace(/\//g, ' / ')}"`, `color: ${color}; font-weight: 900`, 'color: blue; font-weight: 900', 'font-weight: 900');
 	return {
 		x,
 		is,
@@ -36,7 +36,7 @@ function test(name, x, is) {
 			if (log) {
 				console.log(log)
 			} else {
-				if (expanded !== 2) console.log(`%cTEST: %c"${name.replace('/', ' / ')}"`, 'color: blue; font-weight: 900', 'font-weight: 900');
+				if (expanded !== 2) console.log(`%cTEST: %c"${name.replace(/\//g, ' / ')}"`, 'color: blue; font-weight: 900', 'font-weight: 900');
 				console.log('x:%o', this.x);
 				console.log('is:%o', this.is);
 			}

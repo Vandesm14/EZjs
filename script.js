@@ -61,8 +61,9 @@ test('dom/filter', ez.select('#box').children().filter(comp).first, box.childArr
 test('dom/not', ez.select('#box').children().not(parent).first, box.childArray[2]);
 test('dom/not', ez.select('#box').children().filter(parent).every(parent));
 
-test('function/each', ()=>{let x = []; ez.select('#box').children().each(el => x.push(ez.copy(el).id())); return x}, box.childArray.map(el => el.id));
+test('function/each', ()=>{let x = []; ez.select('#box').children().each(el => x.push(ez.create(el).id())); return x}, box.childArray.map(el => el.id));
 
-// test('component/clone', ez.copy(comp).ezid() !== comp.ezid());
+test('component/clone', comp.clone().ezid() !== comp.ezid());
+test('component/createFromHTML', ez.create(box2, true).ezid() === box2.getAttribute('ez-id'));
 
 done();
