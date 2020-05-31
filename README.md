@@ -205,7 +205,7 @@ Sets the ez-id of a component if `id` is specified
 
 #### `ezuid()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the ez-uid of a component
 
@@ -281,85 +281,85 @@ Checks is a component has the `className` class
 
 #### `index()`
 
-[#SO](#selectedonly-methods) [#NC](#nonchainable-methods)
+[#SO](#selected-only-methods) [#NC](#nonchainable-methods)
 
 Gets the index of a component relative to its parent
 
 #### `eq(index)`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets a specific component from a selection list by `index`
 
 #### `parent()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the parent of a component
 
 #### `children([selector])`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the children of a component filtered by `selector` if specified
 
 #### `prev()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the previous sibling of a component
 
 #### `next()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the next sibling of a component
 
 #### `first()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the first instance of a component
 
 #### `last()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the last instance of a component
 
 #### `firstChild()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the first child of a component
 
 #### `find(selector)`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the last child of a component
 
 #### `closest(selector)`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Gets the closest parent of a component by `selector`
 
 #### `filter(selector)`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Filters a component list by `selector`
 
 #### `not(selector)`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Filters a component list by the inverse of `selector`
 
 #### `every(selector)`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Checks if every component in a component list matches `selector`
 
@@ -369,7 +369,7 @@ Checks if every component in a component list matches `selector`
 
 #### `each(func)`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Runs a forEach function on a component list
 
@@ -412,19 +412,19 @@ Inserts a component as a child of `selector` at the `index`  and removes the ori
 
 #### `moveUp()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Swaps a component with its previous sibling
 
 #### `moveDown()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Swaps a component with its next sibling
 
 #### `remove()`
 
-[#SO](#selectedonly-methods)
+[#SO](#selected-only-methods)
 
 Removes a component from the DOM
 
@@ -472,7 +472,7 @@ Fortunately, it is easy to interact with the `core` externally as it is a public
 
 
 
-Components are special as they carry the same functions for templates as they do for selected elements. This is because of the `__selected__` property (called “flag”) which tells the component if it has been created from a selection or not. If a [selection-only method](#selectedonly-methods) has been called, the method will check if the flag is true:
+Components are special as they carry the same functions for templates as they do for selected elements. This is because of the `__selected__` property (called “flag”) which tells the component if it has been created from a selection or not. If a [selection-only method](#selected-only-methods) has been called, the method will check if the flag is true:
 
 - If the flag is true, the method will regard the component as a [component list](#what-are-component-lists), which is when the `core` property contains live elements rather than a non-attached element.
 - If the flag is false, the method will regard the component as a template, which is when the `core` property contains template elements rather than live elements.
@@ -489,4 +489,4 @@ Component Lists, or “Selected Components”, are a form of EZComponent which c
 
 ## What are Templates?
 
-Templates (not to be confused with [Template Components](#what-are-components)) are components which are pre-made and can only be created by the [ez.make()]() function.
+Templates (not to be confused with [Template Components](#what-are-components)) are components which are pre-made and can only be created by the [ez.make()](#making-components) function.
