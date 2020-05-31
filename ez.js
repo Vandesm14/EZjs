@@ -29,8 +29,12 @@ class EZComponent { // EZComponent class
 			return this.main.getAttribute('ez-id');
 		}
 	}
-	ezuid() {
-		return ez.select(this).main.getAttribute('ez-uid');
+	ezuid(id) {
+		if (id) {
+			return ez.select(`[ez-uid="${id}"]`);
+		} else {
+			return ez.select(this).main.getAttribute('ez-uid');
+		}
 	}
 	className(className) {
 		if (className) {
