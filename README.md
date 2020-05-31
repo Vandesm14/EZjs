@@ -138,7 +138,7 @@ If a component has been created via the `ez.select()` function, that component w
 
 Some methods do not directly interfere with the component itself, only the live elements in the DOM. These methods have been marked with the [#SO](#Selected-Only Methods) for easy identification.
 
-*Note: Selected-only methods do not need to be created via the `ez.select()` function, as stated [here](#Components), they will automatically select components directly if a component does not have the `__selected__` flag set to `true`. For more information on the functionality behind this, read [Selection](#Selection)*
+*Note: Selected-only methods are not reliant on a component created via the `ez.select()` function, as stated [here](#Components), they will automatically select components directly if a component does not have the `__selected__` flag set to `true` (created via the `ez.create()` function). For more information on the functionality behind this, read [What are Components?](#What are Components?)*
 
 ### Non-Chainable Methods
 
@@ -418,3 +418,38 @@ Gets the selected flag of a component
 Sets the selected flag of a component to `val`
 
 *Note: `val` can only be a boolean. Learn more about the [selected flag](#Selected Flag)*
+
+
+
+# Detailed Explanation (FAQ)
+
+## What are Components?
+
+Components, or “Template Components”, are a JQuery-like class (EZComponent) which allows the manipulation of “template elements”. These elements are not attached to the DOM. Instead, they are inside of the `core` property of a component. This allows the developer to easily create templates, place many of them around the DOM, and update a specific component without interfering with the template. EZ.js calls any form of EZComponent a “component”, regardless if it‘s attached to the DOM or not (template vs element). This is because they all share the same class and hence, the same functionality.
+
+The `core` property is always an array. If a component is a template, the `core` will contain only one non-attached element. If a component is a component list, the `core` will contain the live elements each as an item of the array. This makes it easy for a method to loop through the `core` and interact with the element(s) regardless if they are live or not.
+
+Fortunately, it is easy to interact with the `core` externally as it is a public property of the EZComponent class. To get the `core` in its entirety, just use the `.core` property. To get the template element from the `core`, you can either use `.core[0]` or `.main` to get a fully usable HTML element.
+
+*Note: If a component is a template rather than a component list, changing the `.main` HTML element will not affect live elements on the DOM. It is only recommended to use the `core` or `.main` properties when working with a `__selected__` component as the elements will be live. Otherwise, use the `core` or `.main` properties as read-only access to the element of a template component.*
+
+
+
+Components are special as they carry the same functions for templates as they do for selected elements. This is because of the `__selected__` property (called “flag”) which tells the component if it has been created from a selection or not. If a [selection-only method](#Selected-Only Methods) has been called, the method will check if the flag is true:
+
+- If the flag is true, the method will regard the component as a [component list](#What are Component Lists?), which is when the `core` property contains live elements rather than a non-attached element.
+- If the flag is false, the method will regard the component as a template, which is when the `core` property contains template elements rather than live elements.
+
+From this, the method will either use the `core` property directly to interact with the live elements if the component is a component list, or it will interact the elements by taking the first element of the `core` (the template) and running an `ez.select()` function to get the live elements.
+
+
+
+## What are Component Lists?
+
+Component Lists, or “Selected Components”, are a form of EZComponent which contain more than one element it its `core`. As explained in the topic above, the `core` is an array which can either have one template element, or one or more live elements. This type of component is created after using the `ez.select()` function or a [DOM method](#DOM) is called. Everything else about Component Lists can be found in the topic above.
+
+
+
+## What are Templates?
+
+Templates (not to be confused with [Template Components](#What are Components?)) are components which are pre-made and can only be created by the [ez.make()]() function.
