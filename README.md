@@ -51,7 +51,7 @@ ez.create('p', {id: 'test'}, 'Hello World')
 ```
 ### HTML Element
 
-For more information on creating a component from an HTML element, read [Copying/Cloning](#Copying/Cloning)
+For more information on creating a component from an HTML element, read [Copying and Cloning](#copying-and-cloning)
 
 ```js
 ez.create(element) // <- Recommended
@@ -63,7 +63,7 @@ ez.select(element)
 
 ### EZComponent
 
-For more information on creating a component from an EZComponent, read [Copying/Cloning](#Copying/Cloning)
+For more information on creating a component from an EZComponent, read [Copying and Cloning](#copying-and-cloning)
 
 ```js
 ez.create(component)
@@ -71,7 +71,38 @@ ez.create(component)
 
 ## Copying/Cloning
 
-EZ.js supports copying/cloning both HTML elements and EZComponents. To copy an element or component (keep references), use `ez.create(x)` as normal. To clone an element or component (remove references), use `ez.create(x, true)`. 
+EZ.js supports copying/cloning both HTML elements and EZComponents. To copy an element or component (keep references), use `ez.create(x)` as normal. To clone an element or component (remove references), use `ez.create(x, true)`.  Here are a few similarities between copying and cloning elements and components:
+
+### EZComponent
+
+```js
+let component = ez.create('p')
+
+/* Cloning */
+component.clone()          // new component
+ez.create(component, true) // new component
+
+/* Copying */
+ez.create(component)       // same component
+
+let another = ez.create('p')
+another.linkTo(component)  // same (another and component function the same)
+component.link(another)    // same (another and component function the same)
+```
+
+### HTML Element
+
+```js
+let element = ez.select('p')
+
+/* Cloning */
+element.clone()          // new component, live element unaffected
+ez.create(element, true) // new component, live element is now a component
+
+/* Copying*/
+ez,create(element)       // same component, recommended
+ez.select(element)       // same component, can cause issues
+```
 
 
 
@@ -98,17 +129,23 @@ When using an EZComponent as a selector, the library will select via the compone
 ez.select(component)
 ```
 
+*Note: If you want to create a component from an EZComponent, refer to the [Copying and Cloning](#copying-and-cloning) section*
+
 ### Object
 
 ```js
 ez.select(tag: 'p', id: 'test')
 ```
 
+*Tip: To select irregular attributes like `ez-id`, use quotes in the key: `{‘ez-id’: ‘mhu3jhkl5nwc1s’}` (it does not matter if you use single or double quotes)*
+
 ### HTML Element
 
 ```js
 ez.select(element)
 ```
+
+*Note: If you want to create a component from an HTML element, refer to the [Copying and Cloning](#copying-and-cloning) section*
 
 
 
@@ -132,17 +169,17 @@ ez.select(comp).text('Hello World')
 
 If a component has been created via the `ez.select()` function, that component will have the `__selected__` flag set to `true`. This flag is mainly used internally and does not need to be set manually.
 
-*Note: It is not recommended to change `__selected__` flag as it can most likely cause problems with the component and its methods. The [selected()](#selected([val])) method is another way of getting/setting the selected flag.*
+*Note: It is not recommended to change `__selected__` flag as it can most likely cause problems with the component and its methods. The [selected()](#selectedval) method is another way of getting/setting the selected flag.*
 
 ### Selected-Only Methods
 
-Some methods do not directly interfere with the component itself, only the live elements in the DOM. These methods have been marked with the [#SO](#Selected-Only Methods) for easy identification.
+Some methods do not directly interfere with the component itself, only the live elements in the DOM. These methods have been marked with the [#SO](#selected-only-methods) for easy identification.
 
-*Note: Selected-only methods are not reliant on a component created via the `ez.select()` function, as stated [here](#Components), they will automatically select components directly if a component does not have the `__selected__` flag set to `true` (created via the `ez.create()` function). For more information on the functionality behind this, read [What are Components?](#What are Components?)*
+*Note: Selected-only methods are not reliant on a component created via the `ez.select()` function, as stated [here](#components), they will automatically select components directly if a component does not have the `__selected__` flag set to `true` (created via the `ez.create()` function). For more information on the functionality behind this, read [What are Components?](#what-are-components)*
 
 ### Non-Chainable Methods
 
-Some methods return data other than a component which prevents other methods from [being executed after them]. These methods have been marked with the [#NC](#Non-Chainable Methods) for easy identification.
+Some methods return data other than a component which prevents other methods from [being executed after them]. These methods have been marked with the [#NC](#nonchainable-methods) for easy identification.
 
 
 
@@ -168,7 +205,7 @@ Sets the ez-id of a component if `id` is specified
 
 #### `ezuid()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the ez-uid of a component
 
@@ -192,13 +229,13 @@ Sets the innerText of a component if `text` is specified
 
 #### `raw()`
 
-[#NC](#Non-Chainable Methods)
+[#NC](#nonchainable-methods)
 
 Gets the outerHTML of a component
 
 #### `simple()`
 
-[#NC](#Non-Chainable Methods)
+[#NC](#nonchainable-methods)
 
 Gets the outerHTML of a component, omitting the attributes
 
@@ -234,7 +271,7 @@ Toggles the `className` class of a component
 
 #### `hasClass(className)`
 
-[#NC](#Non-Chainable Methods)
+[#NC](#nonchainable-methods)
 
 Checks is a component has the `className` class
 
@@ -244,85 +281,85 @@ Checks is a component has the `className` class
 
 #### `index()`
 
-[#SO](#Selected-Only Methods) [#NC](#Non-Chainable Methods)
+[#SO](#selectedonly-methods) [#NC](#nonchainable-methods)
 
 Gets the index of a component relative to its parent
 
 #### `eq(index)`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets a specific component from a selection list by `index`
 
 #### `parent()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the parent of a component
 
 #### `children([selector])`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the children of a component filtered by `selector` if specified
 
 #### `prev()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the previous sibling of a component
 
 #### `next()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the next sibling of a component
 
 #### `first()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the first instance of a component
 
 #### `last()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the last instance of a component
 
 #### `firstChild()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the first child of a component
 
 #### `find(selector)`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the last child of a component
 
 #### `closest(selector)`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Gets the closest parent of a component by `selector`
 
 #### `filter(selector)`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Filters a component list by `selector`
 
 #### `not(selector)`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Filters a component list by the inverse of `selector`
 
 #### `every(selector)`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Checks if every component in a component list matches `selector`
 
@@ -332,7 +369,7 @@ Checks if every component in a component list matches `selector`
 
 #### `each(func)`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Runs a forEach function on a component list
 
@@ -375,19 +412,19 @@ Inserts a component as a child of `selector` at the `index`  and removes the ori
 
 #### `moveUp()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Swaps a component with its previous sibling
 
 #### `moveDown()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Swaps a component with its next sibling
 
 #### `remove()`
 
-[#SO](#Selected-Only Methods)
+[#SO](#selectedonly-methods)
 
 Removes a component from the DOM
 
@@ -399,7 +436,7 @@ Removes a component from the DOM
 
 Links `target` to a component
 
-*Note: `target` can be any form of [accepted selectors](#Selecting Elements)*
+*Note: `target` can be any form of [accepted selectors](#selecting-elements)*
 
 #### `linkTo(target)`
 
@@ -417,7 +454,7 @@ Gets the selected flag of a component
 
 Sets the selected flag of a component to `val`
 
-*Note: `val` can only be a boolean. Learn more about the [selected flag](#Selected Flag)*
+*Note: `val` can only be a boolean. Learn more about the [selected flag](#selected-flag)*
 
 
 
@@ -435,21 +472,21 @@ Fortunately, it is easy to interact with the `core` externally as it is a public
 
 
 
-Components are special as they carry the same functions for templates as they do for selected elements. This is because of the `__selected__` property (called “flag”) which tells the component if it has been created from a selection or not. If a [selection-only method](#Selected-Only Methods) has been called, the method will check if the flag is true:
+Components are special as they carry the same functions for templates as they do for selected elements. This is because of the `__selected__` property (called “flag”) which tells the component if it has been created from a selection or not. If a [selection-only method](#selectedonly-methods) has been called, the method will check if the flag is true:
 
-- If the flag is true, the method will regard the component as a [component list](#What are Component Lists?), which is when the `core` property contains live elements rather than a non-attached element.
+- If the flag is true, the method will regard the component as a [component list](#what-are-component-lists), which is when the `core` property contains live elements rather than a non-attached element.
 - If the flag is false, the method will regard the component as a template, which is when the `core` property contains template elements rather than live elements.
 
 From this, the method will either use the `core` property directly to interact with the live elements if the component is a component list, or it will interact the elements by taking the first element of the `core` (the template) and running an `ez.select()` function to get the live elements.
 
-
+git
 
 ## What are Component Lists?
 
-Component Lists, or “Selected Components”, are a form of EZComponent which contain more than one element it its `core`. As explained in the topic above, the `core` is an array which can either have one template element, or one or more live elements. This type of component is created after using the `ez.select()` function or a [DOM method](#DOM) is called. Everything else about Component Lists can be found in the topic above.
+Component Lists, or “Selected Components”, are a form of EZComponent which contain more than one element it its `core`. As explained in the topic above, the `core` is an array which can either have one template element, or one or more live elements. This type of component is created after using the `ez.select()` function or a [DOM method](#dom) is called. Everything else about Component Lists can be found in the topic above.
 
 
 
 ## What are Templates?
 
-Templates (not to be confused with [Template Components](#What are Components?)) are components which are pre-made and can only be created by the [ez.make()]() function.
+Templates (not to be confused with [Template Components](#what-are-components)) are components which are pre-made and can only be created by the [ez.make()]() function.
