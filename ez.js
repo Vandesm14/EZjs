@@ -306,7 +306,11 @@ class EZComponent { // EZComponent class
 		return this;
 	}
 	remove() {
-		ez.select(selector).core.forEach(el => el.remove());
+		if (this.__selected__) {
+			this.core.forEach(el => el.remove());
+		} else {
+			ez.select(this).core.forEach(el => el.remove());
+		}
 		return this;
 	}
 
@@ -488,6 +492,9 @@ const ez = {
 			for (let i in data) {
 				obj.core.push(create(data[i]));
 			}
+		} else if (data instanceof HTMLElement) {
+			obj = new EZComponent(create(data));
+			// obj.__selected__ = true;
 		} else {
 			obj = new EZComponent(create(data));
 		}
