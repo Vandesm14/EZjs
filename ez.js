@@ -441,7 +441,9 @@ function create(data, clone) {
 	} else if (data instanceof HTMLElement && document.body.contains(data)) {
 		if (clone) { // If clone is true: do not clone element
 			data.setAttribute('ez-id', id);
+			data.setAttribute('ez-uid', id);
 			data = data.cloneNode(true);
+			data.removeAttribute('ez-uid');
 		}
 		element = true;
 	} else if (data instanceof HTMLElement) {
@@ -493,8 +495,8 @@ const ez = {
 				obj.core.push(create(data[i]));
 			}
 		} else if (data instanceof HTMLElement) {
-			obj = new EZComponent(create(data));
-			// obj.__selected__ = true;
+			obj = new EZComponent(create(data, !!prop));		
+			obj.__selected__ = true;
 		} else {
 			obj = new EZComponent(create(data));
 		}
