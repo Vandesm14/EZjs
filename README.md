@@ -69,9 +69,9 @@ For more information on creating a component from an EZComponent, read [Copying 
 ez.create(component)
 ```
 
-## Copying/Cloning
+## Copying and Cloning
 
-EZ.js supports copying/cloning both HTML elements and EZComponents. To copy an element or component (keep references), use `ez.create(x)` as normal. To clone an element or component (remove references), use `ez.create(x, true)`.  Here are a few similarities between copying and cloning elements and components:
+EZ.js supports copying and cloning both HTML elements and EZComponents. To copy an element or component (keep references), use `ez.create(x)` as normal. To clone an element or component (remove references), use `ez.create(x, true)`.  Here are a few similarities between copying and cloning elements and components:
 
 ### EZComponent
 
