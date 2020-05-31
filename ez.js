@@ -484,7 +484,7 @@ const ez = (function () {
 		return data;
 	}
 
-	function select(data = '*') {
+	function select(data) {
 		if (data instanceof EZComponent) {
 			return `[ez-id="${data.attr('ez-id')}"]`;
 		} else if (typeof data === 'object') {
