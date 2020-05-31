@@ -139,14 +139,6 @@ class EZComponent { // EZComponent class
 			}
 		}
 	}
-	find(selector) {
-		selector = select(selector);
-		if (this.__selected__) {
-			return ez.create(this.main.childArray.filter(el => el.matches(selector))).selected(true);
-		} else {
-			return ez.create(ez.select(this).main.childArray.filter(el => el.matches(selector))).selected(true);
-		}
-	}
 	prev() {
 		if (this.__selected__) {
 			return ez.create(this.main.prev).selected(true);
@@ -187,6 +179,14 @@ class EZComponent { // EZComponent class
 			return ez.create(this.main.children[this.main.children.length - 1]).selected(true);
 		} else {
 			return ez.create(ez.select(this).main.children[ez.select(this).main.children.length - 1]).selected(true);
+		}
+	}
+	find(selector) {
+		selector = select(selector);
+		if (this.__selected__) {
+			return ez.create(this.main.childArray.filter(el => el.matches(selector))).selected(true);
+		} else {
+			return ez.create(ez.select(this).main.childArray.filter(el => el.matches(selector))).selected(true);
 		}
 	}
 	closest(selector) {
@@ -271,14 +271,24 @@ class EZComponent { // EZComponent class
 		}
 		return this;
 	}
-	insert(selector, index) {
-		ez.select(selector).core.forEach(el => {
-			if (index === -1 || index > el.childArray.length) {
-				el.appendChild(unique(this.main), el);
-			} else {
-				el.insertBefore(unique(this.main), el.childArray[index]);
-			}
-		});
+	insert(selector, index = 0, destroy) {
+		if (destroy && this.__selected__) {
+			ez.select(selector).core.forEach(el => {
+				if (index === -1 || index > el.childArray.length) {
+					el.appendChild(this.main, el);
+				} else {
+					el.insertBefore(this.main, el.childArray[index]);
+				}
+			});
+		} else {
+			ez.select(selector).core.forEach(el => {
+				if (index === -1 || index > el.childArray.length) {
+					el.appendChild(unique(this.main), el);
+				} else {
+					el.insertBefore(unique(this.main), el.childArray[index]);
+				}
+			});
+		}
 		return this;
 	}
 	moveUp() {
