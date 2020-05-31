@@ -1,11 +1,11 @@
 let box = document.querySelector('#box');
 let box2 = document.querySelector('#box2');
 
-let parent = ez.create('<p>Number One</p>'); // raw
-let child = ez.create('p').text('Number Two'); // tag
+let parent = ez.create('<p>Number One</p>');
+let child = ez.create('p').text('Number Two');
 let comp = ez.create('p', {
 	class: 'card'
-}, 'I am a card'); // react
+}, 'I am a card');
 
 // verbose(1);
 
@@ -75,7 +75,7 @@ test('function/each', () => {
 	return x;
 }, box.childArray.map(el => el.id));
 
-test('component/clone', comp.clone().ezid() !== comp.ezid());
+test('component/clone', comp.clone().ezid() !== comp.ezid(), comp.clone().text() === comp.text());
 test('component/createFromHTML', ez.create(box2).ezid(), null);
 test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
 test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());

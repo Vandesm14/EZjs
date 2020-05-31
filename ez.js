@@ -276,7 +276,8 @@ const ez = (function () {
 			}
 			return this;
 		}
-		insert(selector, index = 0, destroy) {
+		insert(selector, index, destroy) {
+			if (!index) index = 0;
 			if (destroy && this.__selected__) {
 				ez.select(selector).core.forEach(el => {
 					if (index === -1 || index > el.childArray.length) {
@@ -347,14 +348,10 @@ const ez = (function () {
 			return target;
 		}
 		clone(selected) {
-			let obj = new EZComponent(create('p', true)); // dummy element
-			let id = gen();
-			forEach(obj, el => el.cloneNode(true));
-			if (selected) obj.__selected__ = true;
-			return obj;
+			return ez.create(this, true).selected(!!selected);
 		}
 		selected(val) {
-			if (val) {
+			if (val === true || val === false) {
 				this.__selected__ = !!val;
 				return this;
 			} else {
