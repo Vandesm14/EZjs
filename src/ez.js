@@ -1,7 +1,7 @@
 const ez = (function () {
 	const virtual = {};
 
-	class Component {
+	class Template {
 		constructor() {
 			let constructor = Object.getPrototypeOf(this).constructor;
 			let id = virtual[constructor] || gen();
@@ -17,16 +17,18 @@ const ez = (function () {
 			this.__create__(data);
 		}
 
+		__create__(data) {
+			this.core.push(data);
+		}
+
 		get render() {
-			return this.main.render;
+			return this.main.render || function () {
+				throw new Error('Render function is set');
+			};
 		}
 
 		set render(func) {
 			this.main.render = func;
-		}
-
-		__create__(data) {
-			this.core.push(data);
 		}
 
 		/* Attribute */
@@ -49,7 +51,7 @@ const ez = (function () {
 				return this.main.getAttribute('ez-id');
 			}
 		}
-		ezuid(id) {
+		ezuid(id) { // TODO: If selected, set ezuid, else select by ezuid
 			if (id) {
 				return ez.select(`[ez-uid="${id}"]`);
 			} else {
@@ -80,13 +82,19 @@ const ez = (function () {
 				return this.main.innerText;
 			}
 		}
-		raw(text) {
+		raw(text, unlink) {
 			if (text) {
-				if (this.__selected__) {
-					forEach(this, el => el.replaceWith(ez.create(text).removeAttr('ez-id').main));
-				} else {
-					forEach(this, el => el.replaceWith(ez.create(text).setAttribute('ez-id', this.getAttribute('ez-id')).main));
-				}
+				forEach(this, el => {
+					let uid = el.getAttribute('ez-uid');
+					let element = ez.create(text).ezid(this.main.getAttribute('ez-id')).main;
+					element.setAttribute('ez-uid', uid);
+					if (unlink) {
+						element = ez.create(text).main;
+						element.removeAttribute('ez-id');
+					}
+					element.render = el.render;
+					el.replaceWith(element);
+				});
 				return this;
 			} else {
 				return this.main.outerHTML;
@@ -118,10 +126,10 @@ const ez = (function () {
 		}
 		data(prop, val) {
 			if (val) {
-				forEach(this, el => el.setAttribute(`data-${prop}`, val));
+				forEach(this, el => el.dataset[prop] = val);
 				return this;
 			} else {
-				return this.main.getAttribute(`data-${prop}`);
+				return this.main.dataset[prop];
 			}
 		}
 		empty() {
@@ -376,6 +384,8 @@ const ez = (function () {
 			if (target instanceof EZComponent) {
 				target.main = this.main;
 				forEach(target, el => el.setAttribute('ez-id', this.main.getAttribute('ez-id')));
+			} else if (Object.getPrototypeOf(target) instanceof Template) {
+				
 			} else {
 				target = ez.select(target);
 				if (reset) target.core.forEach(el => el.replaceWith(this.main.cloneNode()));
@@ -383,6 +393,9 @@ const ez = (function () {
 				target.core.forEach(el => el.setAttribute('ez-uid', gen()));
 			}
 			return this;
+		}
+		unlink(target) {
+
 		}
 		linkTo(target) {
 			if (!target || !(target instanceof EZComponent)) throw new Error('Component is not an EZComponent');
@@ -396,11 +409,27 @@ const ez = (function () {
 			return ez.create(this, true);
 		}
 		update() {
-			forEach(this, el => el.replaceWith(this.render(...arguments).main));
+			if (this.__selected__) {
+				this.core.forEach(el => {
+					let uid = el.getAttribute('ez-uid');
+					let element = ez.create(el.render(...arguments)).ezid(this.main.getAttribute('ez-id')).main;
+					element.setAttribute('ez-uid', uid);
+					element.render = el.render;
+					el.replaceWith(element);
+				});
+			} else {
+				forEach(this, el => {
+					let uid = el.getAttribute('ez-uid');
+					let element = ez.create(this.render(...arguments)).ezid(this.main.getAttribute('ez-id')).main;
+					element.setAttribute('ez-uid', uid);
+					element.render = this.render;
+					el.replaceWith(element);
+				});
+			}
 			return this;
 		}
 		make() {
-			return ez.create(this.render(...arguments)).ezid(this.main.getAttribute('ez-id'));
+			return ez.create(this.render(...arguments)).ezid(this.main.getAttribute('ez-id')).setRender(this.render);
 		}
 		setRender(func) {
 			forEach(this, el => el.render = func);
@@ -579,7 +608,7 @@ const ez = (function () {
 	});
 
 	let obj = {
-		Component,
+		Component: Template,
 		create: function (data, prop, text) { // Generates new EZComponent
 			let obj;
 			if (typeof data === 'string' && typeof prop === 'object' && typeof text === 'string') { // react syntax
@@ -618,7 +647,7 @@ const ez = (function () {
 		make: function (comp) { // generates a component based on its render function
 			if (comp instanceof EZComponent) {
 				return comp.make(Array.from(arguments).slice(1)).setRender(comp.render);
-			} else if (comp.prototype instanceof Component) {
+			} else if (comp.prototype instanceof Template) {
 				return new comp(Array.from(arguments).slice(1)).setRender(comp.render);
 			}
 		},
