@@ -25,6 +25,7 @@ comp.appendTo('#box');
 test('placement/appendTo', box.childArray.length, 3);
 
 test('select/ez', ez.select(parent).parent().children().core, box.childArray);
+test('select/method', parent.select().parent().children().core, box.childArray);
 test('select/obj', ez.select({
 	id: 'box'
 }).children().core, box.childArray);
@@ -75,12 +76,20 @@ test('function/each', () => {
 	return x;
 }, box.childArray.map(el => el.id));
 
-test('component/clone', comp.clone().ezid() !== comp.ezid(), comp.clone().text() === comp.text());
-test('component/createFromHTML', ez.create(box2).ezid(), null);
-test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
-test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
+// test('component/clone', comp.clone().ezid() !== comp.ezid(), comp.clone().text() === comp.text());
+// test('component/createFromHTML', ez.create(box2).ezid(), null);
+// test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
+// test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
 
-comp.link('#box2 > p').text('Linked');
-test('component/link', box2.children[0].innerText === 'Linked');
+// comp.link('#box2 > p').text('Linked');
+// test('component/link', box2.children[0].innerText === 'Linked');
+
+let component = ez.comp('p', function (text) {
+	return `<p class="red">${text}</p>`;
+});
+test('component/make', ez.make(component, 'Hello').simple(), '<p>Hello</p>');
+
+ez.make(component, 'Number One').appendTo(box2);
+ez.make(component, 'Number Two').appendTo(box2);
 
 done();

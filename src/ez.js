@@ -4,6 +4,9 @@ const ez = (function () {
 			this.core = [];
 			this.__selected__ = false;
 			this.__create__(data);
+			this.make = function () {
+				throw new Error('Make function has not been set');
+			};
 		}
 
 		__create__(data) {
@@ -42,7 +45,7 @@ const ez = (function () {
 				forEach(this, el => el.setAttribute('class', className));
 				return this;
 			} else {
-				return this.main.getAttribute('className');
+				return this.main.getAttribute('class');
 			}
 		}
 		html(text) {
@@ -61,8 +64,17 @@ const ez = (function () {
 				return this.main.innerText;
 			}
 		}
-		raw() {
-			return this.main.outerHTML;
+		raw(text) {
+			if (text) {
+				if (this.__selected__) {
+					forEach(this, el => el.replaceWith(ez.create(text).removeAttr('ez-id').main));
+				} else {
+					forEach(this, el => el.replaceWith(ez.create(text).setAttribute('ez-id', this.getAttribute('ez-id')).main));
+				}
+				return this;
+			} else {
+				return this.main.outerHTML;
+			}
 		}
 		simple() {
 			let tag = this.main.tagName.toLowerCase();
@@ -83,6 +95,18 @@ const ez = (function () {
 		}
 		hasAttr(prop) {
 			return !!this.main.getAttribute(prop);
+		}
+		removeAttr(prop) {
+			forEach(this, el => el.removeAttribute(prop));
+			return this;
+		}
+		data(prop, val) {
+			if (val) {
+				forEach(this, el => el.setAttribute(`data-${prop}`, val));
+				return this;
+			} else {
+				return this.main.getAttribute(`data-${prop}`);
+			}
 		}
 		empty() {
 			forEach(this, el => el.innerText = '');
@@ -331,24 +355,42 @@ const ez = (function () {
 		}
 
 		/* Component */
-		link(target) {
-			if (target instanceof HTMLElement) {
-				target = new EZComponent(create(target));
-			} else if (target instanceof EZComponent) {
-				// Do nothing
+		link(target, reset) {
+			if (this.__selected__) throw new Error('Cannot link a target if selected');
+			if (target instanceof EZComponent) {
+				target.main = this.main;
+				forEach(target, el => el.setAttribute('ez-id', this.main.getAttribute('ez-id')));
 			} else {
 				target = ez.select(target);
+				if (reset) target.core.forEach(el => el.replaceWith(this.main.cloneNode()));
+				forEach(target, el => el.setAttribute('ez-id', this.main.getAttribute('ez-id')));
+				target.core.forEach(el => el.setAttribute('ez-uid', gen()));
 			}
-			forEach(target, el => el.setAttribute('ez-id', this.main.getAttribute('ez-id')));
 			return this;
 		}
 		linkTo(target) {
 			if (!target || !(target instanceof EZComponent)) throw new Error('Component is not an EZComponent');
+			if (target.__selected__) throw new Error('Cannot link to a selected component');
+			if (this.__selected__) throw new Error('Cannot link to a component if selected');
+			this.main = target.main;
 			forEach(this, el => el.setAttribute('ez-id', target.main.getAttribute('ez-id')));
 			return target;
 		}
-		clone(selected) {
-			return ez.create(this, true).selected(!!selected);
+		clone() {
+			if (arguments.length) {
+				return ez.create(this.make(...arguments), true).ezid(this.main.getAttribute('ez-id'));
+			} else {
+				return ez.create(this, true);
+			}
+		}
+		update() {
+			if (arguments.length) {
+				ez.select(this).core.forEach(el => el.replaceWith(this.clone(...arguments).main));
+			}
+		}
+		setMake(func) {
+			this.make = func;
+			return this;
 		}
 		selected(val) {
 			if (val === true || val === false) {
@@ -356,6 +398,13 @@ const ez = (function () {
 				return this;
 			} else {
 				return this.__selected__;
+			}
+		}
+		select() {
+			if (this.__selected__) {
+				return this;
+			} else {
+				return ez.select(this);
 			}
 		}
 	}
@@ -453,7 +502,7 @@ const ez = (function () {
 		} else if (data instanceof HTMLElement && document.body.contains(data)) {
 			if (clone) { // If clone is true: do not clone element
 				data.setAttribute('ez-id', id);
-				data.setAttribute('ez-uid', id);
+				data.setAttribute('ez-uid', gen());
 				data = data.cloneNode(true);
 				data.removeAttribute('ez-uid');
 			}
@@ -501,13 +550,13 @@ const ez = (function () {
 			return this.nextElementSibling;
 		}
 	});
-	
+
 	Object.defineProperty(HTMLElement.prototype, 'childArray', {
 		get: function () {
 			return Array.from(this.children);
 		}
 	});
-	
+
 	Object.defineProperty(EZComponent.prototype, 'main', {
 		get: function () {
 			return this.core[0];
@@ -515,20 +564,21 @@ const ez = (function () {
 		set: function (data) {}
 	});
 
-	return {
+	let obj = {
+		EZComponent,
 		create: function (data, prop, text) { // Generates new EZComponent
 			let obj;
-			if (typeof data === 'string' && typeof prop === 'object' && typeof text === 'string') {
+			if (typeof data === 'string' && typeof prop === 'object' && typeof text === 'string') { // react syntax
 				data = reactToElement(data, prop, text || '');
 				obj = new EZComponent(create(data));
-			} else if (prop === true) {
+			} else if (prop === true) { // clone element
 				obj = new EZComponent(create(data, true));
 			} else if (Array.isArray(data)) {
 				obj = new EZComponent(create('p')); // dummy element
 				if (prop === true) obj.__selected__ = true;
 				obj.core = [];
 				for (let i in data) {
-					obj.core.push(create(data[i]));
+					obj.core.push(ez.create(data[i]).main);
 				}
 			} else if (data instanceof HTMLElement) {
 				obj = new EZComponent(create(data, !!prop));
@@ -550,6 +600,20 @@ const ez = (function () {
 			obj.__selected__ = true;
 			obj.core = selection; // insert actual selection
 			return obj;
+		},
+		make: function (comp) { // generates a component based on its make function
+			return comp.clone(Array.from(arguments).slice(1));
+		},
+		comp: function (base, func) { // generates a component with a make function
+			if (typeof func !== 'function') throw new Error('Func must be a function');
+			let component = ez.create(base);
+			component.make = func;
+			return component;
+		},
+		gen: function () {
+			return ((+new Date()) * Math.round(Math.random() * Math.pow(10, 10))).toString(36);
 		}
 	};
+
+	return obj;
 })();
