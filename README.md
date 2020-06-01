@@ -14,9 +14,29 @@
 
 # Quick Start
 
-## Creating Components
+## Terminology
 
-With EZ.js, you can create components in 6 different ways:
+**EZComponents:** The JS class used for Components, Component Lists, and Templates
+
+**Components:** An EZComponent, created with `ez.create()` or `ez.make()`, which contains one non-attached HTML element in its `core`
+
+**Component Lists:** An EZComponent, created with `ez.select()`, which contains one or more attached HTML elements in its `core` (selected components)
+
+**Templates:** An EZComponent, created with `ez.comp()`, which acts like a normal Component, except that its content is created by executing the `clone()` method
+
+
+
+## Creating EZComponents
+
+The components in EZ.js give the developer control over many elements of the same template with only a single EZComponent.
+
+#### `ez.create(data[, clone])`
+
+Returns an EZComponent created from `data` and cloned if `clone` is specified
+
+
+
+EZ.js supports 6 different input types for creating EZComponent:
 
 ### Chained Methods
 
@@ -47,15 +67,15 @@ ez.create('p', {id: 'test'}, 'Hello World')
 ```
 ### HTML Element
 
-For more information on creating a component from an HTML element, s [Copying and Cloning](#copying-and-cloning)
+For more information on creating a EZComponent from an HTML element, s [Copying and Cloning](#copying-and-cloning)
 
 ```js
 ez.create(element) // <- Recommended
-/* is the same as */
+/* or */
 ez.select(element)
 ```
 
-*Note: Using `ez.select()` to create a component from an element (keeping reference) is not recommended as it is prone to breaking the component. Use `ez.create()` instead*
+*Note: Using `ez.select()` to create a EZComponent from an element (keeping reference) is not recommended as it is prone to breaking the component. Use `ez.create()` instead*
 
 ### EZComponent
 
@@ -67,47 +87,17 @@ ez.create(component)
 
 
 
-## Copying and Cloning
-
-EZ.js supports copying and cloning both HTML elements and EZComponents. To copy an element or component (keep references), use `ez.create(x)` as normal. To clone an element or component (remove references), use `ez.create(x, true)`.  Here are a few similarities between copying and cloning elements and components:
-
-### EZComponent
-
-```js
-let component = ez.create('p')
-
-/* Cloning */
-component.clone()          // new component
-ez.create(component, true) // new component
-
-/* Copying */
-ez.create(component)       // same component
-
-let component2 = ez.create('p')
-component2.linkTo(component)  // same (component2 and component function the same)
-/* or */
-component.link(component2)    // same (component and component2 function the same)
-```
-
-### HTML Element
-
-```js
-let element = ez.select('p')
-
-/* Cloning */
-element.clone()          // new component, live element unaffected
-ez.create(element, true) // new component, live element is now a component
-
-/* Copying*/
-ez,create(element)       // same component, recommended
-ez.select(element)       // same component, can cause issues
-```
-
-
-
 ## Selecting Elements
 
-EZ.js comes with a custom JQuery-like selection system which allows you to select elements and use them as if they were components. EZ.js supports selecting elements in 4 different ways:
+EZ.js comes with a custom JQuery-like selection system which allows you to select elements and use them as if they were components.
+
+#### `ez.select(selector)`
+
+Returns an EZComponent with the selected elements specified by `selector`
+
+
+
+EZ.js supports selecting elements with 4 different selector types:
 
 ### Selector
 
@@ -139,19 +129,81 @@ ez.select(tag: 'p', id: 'test')
 ez.select(element)
 ```
 
-*Note: If you want to create a component from an HTML element, see [Copying and Cloning](#copying-and-cloning)*
+*Note: If you want to create an EZComponent from an HTML element, see [Copying and Cloning](#copying-and-cloning)*
+
+
+
+## Copying and Cloning
+
+EZ.js supports copying and cloning both HTML elements and EZComponents. To copy an element or EZComponent (keep references), use `ez.create(x)` as normal. To clone an element or EZComponent (remove references), use `ez.create(x, true)`.  Here are a few similarities between copying and cloning elements and EZComponents:
+
+### EZComponent
+
+```js
+let component = ez.create('p')
+
+/* Cloning */
+component.clone()          // new component
+ez.create(component, true) // new component
+
+/* Copying */
+ez.create(component)       // same component
+
+let component2 = ez.create('p')
+component2.linkTo(component)
+/* or */
+component.link(component2)
+// both component and component2 function the same, but have different template elements
+
+component.link(component2)
+// both component and component2 function the same, and have the same template elements
+```
+
+### HTML Element
+
+```js
+let element = ez.select('p').main // returns an html element
+
+/* Cloning */
+element.clone()          // new component, live element unaffected
+ez.create(element, true) // new component, live element is now a component
+
+/* Copying*/
+ez,create(element)       // same component, recommended
+ez.select(element)       // same component, can cause issues
+```
 
 
 
 ## Creating Templates
 
+Templates are EZComponent which need to be generated in order to be used as normal components. This allows developers to create, use, and share components similar to the way React components work (in respect to their modularity and portability).
+
+EZ.js supports a few different methods of creating templates:
+
+```js
+ez.template(base, func)
+/* or */
+ez.create(base).setMake(func) // <- .setMake is chainable
+```
 
 
 
+## Rendering Templates
+
+To make a component from a template, EZ.js supports a few different methods of doing so:
+
+```js
+template.clone(args)
+/* or */
+ez.make(template, args)
+```
+
+*Note: When creating a component from a template, the resulting component will have the same `ez-id` as the template*
 
 # Components
 
-It does not matter if a component is selected or created **when setting values**, the library will automatically update the live elements regardless. Here is an example:
+It does not matter if an EZComponent is selected or created **when setting values**, the library will automatically update the live elements regardless. Here is an example:
 
 ```js
 let comp = ez.create('p')
@@ -183,6 +235,12 @@ Some methods return data other than a component which prevents other methods fro
 
 
 
+# Templates
+
+Placeholder
+
+
+
 # EZComponent Methods
 
 ## Attribute
@@ -202,6 +260,8 @@ Sets the id of a component to `id` if specified
 Gets the ez-id of a component
 
 Sets the ez-id of a component to `id` if specified
+
+*Note: Setting the ez-id of a live element will break its relation with the component. Setting the ez-id of a component is the recommended method of changing the ez-id.*
 
 ### `ezuid([id])`
 
@@ -229,11 +289,13 @@ Gets the innerText of a component
 
 Sets the innerText of a component to `text` if specified
 
-### `raw()`
+### `raw([text])`
 
 [#NC](#non-chainable-methods)
 
 Gets the outerHTML of a component
+
+Sets the outerHTML of a component to `raw` if specified
 
 ### `simple()`
 
@@ -250,6 +312,16 @@ Sets the `prop` attribute of a component to `val` if specified
 ### `hasAttr(prop)`
 
 Checks if a component has the `prop` attribute
+
+### `removeAttr(prop)`
+
+Removes the `prop` attribute of a component
+
+### `data(prop[, val])`
+
+Gets the “data-`prop`” attribute of a component
+
+Sets the “data-`prop`” attribute of a component
 
 ### `empty()`
 
@@ -442,21 +514,33 @@ Removes a component from the DOM
 
 ## Component
 
-### `link(target)`
+### `link(target[, reset])`
 
-Links `target` to a component
+Links `target` to a component and overwrites the HTML Elements to the component if `reset` is specified
 
 *Note: `target` can be any form of [accepted selectors](#selecting-elements)*
+
+*Note: The component can only be a non-selected EZComponent*
 
 ### `linkTo(target)`
 
 Links a component to `target`
 
-*Note: `target` can only be an EZComponent*
+*Note: Both the component and`target` can only be a non-selected EZComponent*
 
-### `clone([selected])`
+### `clone(...args)`
 
-Creates a (de-referenced) clone of a component and sets the `__selected__` flag to `selected` if specified
+Creates a (de-referenced) clone of a component
+
+Creates a (de-referenced) clone of a component generated from the make function if `args` is specified
+
+### `update(...args)`
+
+Regenerates a component from the make function with `args` as the input
+
+### `setMake(func)`
+
+Sets the make function of a component to `func`
 
 ### `selected([val])`
 
@@ -465,6 +549,10 @@ Gets the selected flag of a component
 Sets the selected flag of a component to `val` if specified
 
 *Note: `val` can only be a boolean. Learn more about the [selected flag](#selected-flag)*
+
+### `select()`
+
+Selects a component and returns the selection if the component is not `__selected__`
 
 
 
@@ -482,12 +570,12 @@ Fortunately, it is easy to interact with the `core` externally as it is a public
 
 
 
-Components are special as they carry the same functions for templates as they do for selected elements. This is because of the `__selected__` property (called “flag”) which tells the component if it has been created from a selection or not. If a [selection-only method](#selected-only-methods) has been called, the method will check if the flag is true or false:
+Components are special as they carry the same functions for templates as they do for selected elements. This is because of the `__selected__` property (called a “flag”) which tells the component if it has been created from a selection or not. If a [selected-only method](#selected-only-methods) has been called, the method will check if the flag is true or false:
 
 - If the flag is true, the method will regard the component as a [component list](#what-are-component-lists), which is when the `core` property contains live elements rather than a non-attached element.
 - If the flag is false, the method will regard the component as a template, which is when the `core` property contains one template element rather than live elements.
 
-From this, the method will either use the `core` property directly to interact with the live elements if the component is a component list, or it will interact the elements by taking the first element of the `core` (the template) and running an `ez.select()` function to get the live elements.
+From this, the method will either use the `core` property directly to interact with the live elements if the component is a component list, or it will interact with the elements by taking the first element of the `core` (the template) and running an `ez.select()` function to get the live elements.
 
 
 
