@@ -1,7 +1,12 @@
 const ez = (function () {
+	const virtual = {};
+
 	class Component {
 		constructor() {
-			return ez.create(this.make(...arguments));
+			let constructor = Object.getPrototypeOf(this).constructor;
+			let id = virtual[constructor] || gen();
+			if (!virtual.hasOwnProperty(constructor)) virtual[constructor] = id;
+			return ez.create(this.render(...arguments)).ezid(id);
 		}
 	}
 
@@ -10,9 +15,14 @@ const ez = (function () {
 			this.core = [];
 			this.__selected__ = false;
 			this.__create__(data);
-			this.make = function () {
-				throw new Error('Make function has not been set');
-			};
+		}
+
+		get render() {
+			return this.main.render;
+		}
+
+		set render(func) {
+			this.main.render = func;
 		}
 
 		__create__(data) {
@@ -25,7 +35,7 @@ const ez = (function () {
 		}
 		id(id) {
 			if (id) {
-				this.core.main.id = id;
+				this.main.id = id;
 				return this;
 			} else {
 				return this.main.id;
@@ -383,19 +393,17 @@ const ez = (function () {
 			return target;
 		}
 		clone() {
-			if (arguments.length) {
-				return ez.create(this.make(...arguments), true).ezid(this.main.getAttribute('ez-id'));
-			} else {
-				return ez.create(this, true);
-			}
+			return ez.create(this, true);
 		}
 		update() {
-			if (arguments.length) {
-				ez.select(this).core.forEach(el => el.replaceWith(this.clone(...arguments).main));
-			}
+			forEach(this, el => el.replaceWith(this.render(...arguments).main));
+			return this;
 		}
-		setMake(func) {
-			this.make = func;
+		make() {
+			return ez.create(this.render(...arguments)).ezid(this.main.getAttribute('ez-id'));
+		}
+		setRender(func) {
+			forEach(this, el => el.render = func);
 			return this;
 		}
 		selected(val) {
@@ -607,17 +615,17 @@ const ez = (function () {
 			obj.core = selection; // insert actual selection
 			return obj;
 		},
-		make: function (comp) { // generates a component based on its make function
+		make: function (comp) { // generates a component based on its render function
 			if (comp instanceof EZComponent) {
-				return comp.clone(Array.from(arguments).slice(1));
-			} else if (comp instanceof Component) {
-				return comp(Array.from(arguments).slice(1));
+				return comp.make(Array.from(arguments).slice(1)).setRender(comp.render);
+			} else if (comp.prototype instanceof Component) {
+				return new comp(Array.from(arguments).slice(1)).setRender(comp.render);
 			}
 		},
-		comp: function (base, func) { // generates a component with a make function
+		comp: function (base, func) { // generates a component with a render function
 			if (typeof func !== 'function') throw new Error('Func must be a function');
 			let component = ez.create(base);
-			component.make = func;
+			component.setRender(func);
 			return component;
 		},
 		gen: function () {

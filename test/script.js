@@ -76,26 +76,31 @@ test('function/each', () => {
 	return x;
 }, box.childArray.map(el => el.id));
 
-// test('component/clone', comp.clone().ezid() !== comp.ezid(), comp.clone().text() === comp.text());
-// test('component/createFromHTML', ez.create(box2).ezid(), null);
-// test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
-// test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
+test('component/clone', comp.clone().ezid() !== comp.ezid(), comp.clone().text() === comp.text());
+test('component/createFromHTML', ez.create(box2).ezid(), null);
+test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
+test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
 
-// comp.link('#box2 > p').text('Linked');
-// test('component/link', box2.children[0].innerText === 'Linked');
+comp.link('#box2 > p').text('Linked');
+test('component/link', box2.children[0].innerText === 'Linked');
 
 let component = ez.comp('p', function (text) {
 	return `<p class="red">${text}</p>`;
 });
-test('component/make', ez.make(component, 'Hello').simple(), '<p>Hello</p>');
+test('component/make/simple', ez.make(component, 'Hello').simple(), '<p>Hello</p>');
+test('component/make/ezid', ez.make(component, 'Hello').ezid(), component.ezid());
+test('component/make/clone', ez.make(component, 'Hello').clone().ezid() !== component.ezid());
 
 ez.make(component, 'Number One').appendTo(box2);
 ez.make(component, 'Number Two').appendTo(box2);
 
 class MyComponent extends ez.Component {
-	make(text) {
+	render(text) {
 		return `<p class="red">generated: ${text}</p>`;
 	}
 }
+test('component/class/simple', ez.make(MyComponent, 'Hello').simple(), '<p>generated: Hello</p>');
+test('component/class/ezid', ez.make(MyComponent, 'Hello').ezid(), ez.make(MyComponent, 'Hello').ezid());
+test('component/class/clone', ez.make(MyComponent, 'Hello').clone().ezid() !== ez.make(MyComponent, 'Hello').ezid());
 
 done();
