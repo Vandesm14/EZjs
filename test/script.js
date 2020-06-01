@@ -92,4 +92,10 @@ test('component/make', ez.make(component, 'Hello').simple(), '<p>Hello</p>');
 ez.make(component, 'Number One').appendTo(box2);
 ez.make(component, 'Number Two').appendTo(box2);
 
+class MyComponent extends ez.Component {
+	make(text) {
+		return `<p class="red">generated: ${text}</p>`;
+	}
+}
+
 done();

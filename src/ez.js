@@ -1,4 +1,10 @@
 const ez = (function () {
+	class Component {
+		constructor() {
+			return ez.create(this.make(...arguments));
+		}
+	}
+
 	class EZComponent { // EZComponent class
 		constructor(data) { // Constructor
 			this.core = [];
@@ -565,7 +571,7 @@ const ez = (function () {
 	});
 
 	let obj = {
-		EZComponent,
+		Component,
 		create: function (data, prop, text) { // Generates new EZComponent
 			let obj;
 			if (typeof data === 'string' && typeof prop === 'object' && typeof text === 'string') { // react syntax
@@ -602,7 +608,11 @@ const ez = (function () {
 			return obj;
 		},
 		make: function (comp) { // generates a component based on its make function
-			return comp.clone(Array.from(arguments).slice(1));
+			if (comp instanceof EZComponent) {
+				return comp.clone(Array.from(arguments).slice(1));
+			} else if (comp instanceof Component) {
+				return comp(Array.from(arguments).slice(1));
+			}
 		},
 		comp: function (base, func) { // generates a component with a make function
 			if (typeof func !== 'function') throw new Error('Func must be a function');
