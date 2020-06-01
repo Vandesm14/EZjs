@@ -385,7 +385,7 @@ const ez = (function () {
 				target.main = this.main;
 				forEach(target, el => el.setAttribute('ez-id', this.main.getAttribute('ez-id')));
 			} else if (Object.getPrototypeOf(target) instanceof Template) {
-				
+
 			} else {
 				target = ez.select(target);
 				if (reset) target.core.forEach(el => el.replaceWith(this.main.cloneNode()));
@@ -608,7 +608,7 @@ const ez = (function () {
 	});
 
 	let obj = {
-		Component: Template,
+		Template,
 		create: function (data, prop, text) { // Generates new EZComponent
 			let obj;
 			if (typeof data === 'string' && typeof prop === 'object' && typeof text === 'string') { // react syntax
