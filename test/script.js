@@ -104,6 +104,7 @@ class MyTemplate extends ez.Template {
 	}
 	addTask(task) {
 		this.state.tasks.push(task);
+		this.update();
 	}
 }
 

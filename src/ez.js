@@ -451,8 +451,10 @@ const ez = (function () {
 				forEach(this, (el, i, comp) => {
 					let uid = el.getAttribute('ez-uid');
 					let element = ez.create(this.render(obj || {}, this.state)).ezid(this.main.getAttribute('ez-id')).main;
-					for (let event of Object.keys(this.events)) {
-						element.addEventListener(event, this.events[event]);
+					if (this.events) {
+						for (let event of Object.keys(this.events)) {
+							element.addEventListener(event, this.events[event]);
+						}
 					}
 					if (document.body.contains(el)) element.setAttribute('ez-uid', uid);
 					element.render = this.render;
