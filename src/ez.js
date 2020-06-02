@@ -1,6 +1,5 @@
-var x;
-const virtual = [];
 const ez = (function () {
+	const virtual = [];
 
 	class Template {
 		constructor() {
@@ -27,7 +26,7 @@ const ez = (function () {
 	class EZComponent { // EZComponent class
 		constructor(data) { // Constructor
 			this.core = [];
-			this.obj = {};
+			this.state = {};
 			this.__selected__ = false;
 			this.__create__(data);
 		}
@@ -67,10 +66,20 @@ const ez = (function () {
 			}
 		}
 		ezuid(id) { // TODO: If selected, set ezuid, else select by ezuid
-			if (id) {
-				return ez.select(`[ez-uid="${id}"]`);
+			if (this.__selected__) {
+				if (id) {
+					this.main.setAttribute('ezuid', id);
+					return this;
+				} else {
+					return this.main.getAttribute('ez-uid');
+				}
+
 			} else {
-				return ez.select(this).main.getAttribute('ez-uid');
+				if (id) {
+					return ez.select(`[ez-uid="${id}"]`);
+				} else {
+					return ez.select(this).main.getAttribute('ez-uid');
+				}
 			}
 		}
 		className(className) {
@@ -427,11 +436,11 @@ const ez = (function () {
 		clone() {
 			return ez.create(this, true);
 		}
-		update() {
+		update(obj) {
 			if (this.__selected__) {
 				this.core.forEach(el => {
 					let uid = el.getAttribute('ez-uid');
-					let element = ez.create(el.render(...arguments)).ezid(this.main.getAttribute('ez-id')).main;
+					let element = ez.create(el.render(obj || {}, this.state)).ezid(this.main.getAttribute('ez-id')).main;
 					element.setAttribute('ez-uid', uid);
 					element.render = el.render;
 					el.replaceWith(element);
@@ -439,7 +448,7 @@ const ez = (function () {
 			} else {
 				forEach(this, (el, i, comp) => {
 					let uid = el.getAttribute('ez-uid');
-					let element = ez.create(this.render(...arguments)).ezid(this.main.getAttribute('ez-id')).main;
+					let element = ez.create(this.render(obj || {}, this.state)).ezid(this.main.getAttribute('ez-id')).main;
 					if (document.body.contains(el)) element.setAttribute('ez-uid', uid);
 					element.render = this.render;
 					if (document.body.contains(el)) {
@@ -535,7 +544,6 @@ const ez = (function () {
 		} else {
 			data = copy(data);
 		}
-		if (!data.tag) console.trace(data);
 		if (!data.tag) throw new Error('Tag is not present in EZ Component declaration');
 		let tag = data.tag;
 		let html = data.html || data.text && data.text.replace(/</g, '&lt;').replace(/>/g, '&gt;') || '';

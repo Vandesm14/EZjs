@@ -81,8 +81,8 @@ test('component/createFromHTML', ez.create(box2).ezid(), null);
 test('component/cloneFromHTML', ez.create(box2, true).ezid(), box2.getAttribute('ez-id'));
 test('component/linkTo', comp.clone().linkTo(comp).ezid(), comp.ezid());
 
-// comp.link('#box2 > p').text('Linked');
-// test('component/link', box2.children[0].innerText === 'Linked');
+comp.link('#box2 > p').text('Linked');
+test('component/link', box2.children[0].innerText === 'Linked');
 
 let component = ez.comp('p', function (text) {
 	return `<p class="red">${text}</p>`;
@@ -97,20 +97,22 @@ ez.make(component, 'Number Two').appendTo(box2);
 class MyTemplate extends ez.Template {
 	constructor() {
 		super();
-		this.obj = {tasks: []};
+		this.state = {tasks: []};
 	}
-	render() {
-		return `<p>${this.obj.tasks.join(', ')}</p>`;
+	render({ }, {tasks}) {
+		return `<p>${tasks.join(', ')}</p>`;
 	}
 	addTask(task) {
-		this.obj.tasks.push(task);
-		this.update();
+		this.state.tasks.push(task);
 	}
 }
 
 let template = ez.make(MyTemplate);
 template.addTask('Task 1');
 template.addTask('Task 2');
+
+template.appendTo(document.body);
+
 test('component/class/simple', template.simple(), '<p>Task 1, Task 2</p>');
 test('component/class/ezid', template.ezid(), ez.make(MyTemplate).ezid());
 test('component/class/clone', template.clone().ezid() !== ez.make(MyTemplate).ezid());
