@@ -94,28 +94,43 @@ test('component/make/clone', ez.make(component, 'Hello').clone().ezid() !== comp
 ez.make(component, 'Number One').appendTo(box2);
 ez.make(component, 'Number Two').appendTo(box2);
 
-class MyTemplate extends ez.Template {
+class Counter extends ez.Template {
 	constructor() {
 		super();
-		this.state = {tasks: []};
+		this.state = {
+			count: 0
+		};
+		this.events = {
+			click: () => {
+				this.state.count++;
+				this.update();
+			}
+		};
 	}
-	render({ }, {tasks}) {
-		return `<p>${tasks.join(', ')}</p>`;
+	render({}, {
+		count
+	}) {
+		return `<button>${count}</button>`;
 	}
-	addTask(task) {
-		this.state.tasks.push(task);
+	reset() {
+		this.state.count = 0;
 		this.update();
 	}
 }
 
-let template = ez.make(MyTemplate);
-template.addTask('Task 1');
-template.addTask('Task 2');
-
+// let template = ez.make(Counter);
+let template = new Counter();
+let template2 = new Counter();
 template.appendTo(document.body);
+template.appendTo(document.body);
+template2.appendTo(document.body);
+template.update();
+template2.update();
 
-test('component/class/simple', template.simple(), '<p>Task 1, Task 2</p>');
-test('component/class/ezid', template.ezid(), ez.make(MyTemplate).ezid());
-test('component/class/clone', template.clone().ezid() !== ez.make(MyTemplate).ezid());
+console.log(template.render)
+
+test('component/class/simple', template.simple(), '<button>0</button>');
+test('component/class/ezid', template.ezid() !== ez.make(Counter).ezid());
+test('component/class/clone', template.clone().ezid() !== ez.make(Counter).ezid());
 
 done();

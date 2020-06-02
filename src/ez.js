@@ -1,5 +1,5 @@
+const virtual = [];
 const ez = (function () {
-	const virtual = [];
 
 	class Template {
 		constructor() {
@@ -11,7 +11,7 @@ const ez = (function () {
 				});
 				return virtual[virtual.length - 1];
 			})();
-			item.ezid = item.ezid || gen();
+			item.ezid = gen();
 			let element = ez.create('p').ezid(item.ezid); // dummy element
 			for (let prop of Object.getOwnPropertyNames(proto)) {
 				if (prop !== 'constructor') element[prop] = proto[prop];
@@ -62,6 +62,14 @@ const ez = (function () {
 				return this;
 			} else {
 				return this.main.getAttribute('ez-id');
+			}
+		}
+		ezcid(id) {
+			if (id) {
+				forEach(this, el => el.setAttribute('ez-cid', id));
+				return this;
+			} else {
+				return this.main.getAttribute('ez-cid');
 			}
 		}
 		ezuid(id) { // TODO: If selected, set ezuid, else select by ezuid
@@ -422,7 +430,7 @@ const ez = (function () {
 			return this;
 		}
 		unlink(target) {
-
+			forEach(this, el => el.removeAttribute('ez-uid'), el.removeAttribute('ez-id'));
 		}
 		linkTo(target) {
 			if (!target || !(target instanceof EZComponent)) throw new Error('Component is not an EZComponent');
@@ -440,24 +448,24 @@ const ez = (function () {
 				this.core.forEach(el => {
 					let uid = el.getAttribute('ez-uid');
 					let element = ez.create(el.render(obj || {}, this.state)).ezid(this.main.getAttribute('ez-id')).main;
-					for (let event of Object.keys(this.events)) {
+					for (let event of Object.keys(this.events || {})) {
 						element.addEventListener(event, this.events[event]);
 					}
 					element.setAttribute('ez-uid', uid);
 					element.render = el.render;
+					element.state = el.state;
 					el.replaceWith(element);
 				});
 			} else {
 				forEach(this, (el, i, comp) => {
 					let uid = el.getAttribute('ez-uid');
 					let element = ez.create(this.render(obj || {}, this.state)).ezid(this.main.getAttribute('ez-id')).main;
-					if (this.events) {
-						for (let event of Object.keys(this.events)) {
-							element.addEventListener(event, this.events[event]);
-						}
+					for (let event of Object.keys(this.events || {})) {
+						element.addEventListener(event, this.events[event]);
 					}
 					if (document.body.contains(el)) element.setAttribute('ez-uid', uid);
 					element.render = this.render;
+					element.state = this.state;
 					if (document.body.contains(el)) {
 						el.replaceWith(element);
 					} else {
