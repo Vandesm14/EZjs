@@ -95,12 +95,24 @@ ez.make(component, 'Number One').appendTo(box2);
 ez.make(component, 'Number Two').appendTo(box2);
 
 class MyTemplate extends ez.Template {
-	render(text) {
-		return `<p class="red">generated: ${text}</p>`;
+	constructor() {
+		super();
+		this.obj = {tasks: []};
+	}
+	render() {
+		return `<p>${this.obj.tasks.join(', ')}</p>`;
+	}
+	addTask(task) {
+		this.obj.tasks.push(task);
+		this.update();
 	}
 }
-test('component/class/simple', ez.make(MyTemplate, 'Hello').simple(), '<p>generated: Hello</p>');
-test('component/class/ezid', ez.make(MyTemplate, 'Hello').ezid(), ez.make(MyTemplate, 'Hello').ezid());
-test('component/class/clone', ez.make(MyTemplate, 'Hello').clone().ezid() !== ez.make(MyTemplate, 'Hello').ezid());
+
+let template = ez.make(MyTemplate);
+template.addTask('Task 1');
+template.addTask('Task 2');
+test('component/class/simple', template.simple(), '<p>Task 1, Task 2</p>');
+test('component/class/ezid', template.ezid(), ez.make(MyTemplate).ezid());
+test('component/class/clone', template.clone().ezid() !== ez.make(MyTemplate).ezid());
 
 done();

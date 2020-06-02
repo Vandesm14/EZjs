@@ -1,18 +1,33 @@
+var x;
+const virtual = [];
 const ez = (function () {
-	const virtual = {};
 
 	class Template {
 		constructor() {
-			let constructor = Object.getPrototypeOf(this).constructor;
-			let id = virtual[constructor] || gen();
-			if (!virtual.hasOwnProperty(constructor)) virtual[constructor] = id;
-			return ez.create(this.render(...arguments)).ezid(id);
+			let proto = Object.getPrototypeOf(this);
+			let constructor = proto.constructor;
+			let item = virtual.find(el => el.name === constructor.name) || (function () {
+				virtual.push({
+					name: constructor.name
+				});
+				return virtual[virtual.length - 1];
+			})();
+			item.ezid = item.ezid || gen();
+			let element = ez.create('p').ezid(item.ezid); // dummy element
+			for (let prop of Object.getOwnPropertyNames(proto)) {
+				if (prop !== 'constructor') element[prop] = proto[prop];
+			}
+			return element;
+		}
+		render() {
+			throw new Error('Render function is not set');
 		}
 	}
 
 	class EZComponent { // EZComponent class
 		constructor(data) { // Constructor
 			this.core = [];
+			this.obj = {};
 			this.__selected__ = false;
 			this.__create__(data);
 		}
@@ -23,7 +38,7 @@ const ez = (function () {
 
 		get render() {
 			return this.main.render || function () {
-				throw new Error('Render function is set');
+				throw new Error('Render function is not set');
 			};
 		}
 
@@ -84,16 +99,20 @@ const ez = (function () {
 		}
 		raw(text, unlink) {
 			if (text) {
-				forEach(this, el => {
+				forEach(this, (el, i, comp) => {
 					let uid = el.getAttribute('ez-uid');
 					let element = ez.create(text).ezid(this.main.getAttribute('ez-id')).main;
-					element.setAttribute('ez-uid', uid);
-					if (unlink) {
+					if (document.body.contains(el)) element.setAttribute('ez-uid', uid);
+					if (unlink && document.body.contains(el)) {
 						element = ez.create(text).main;
 						element.removeAttribute('ez-id');
 					}
 					element.render = el.render;
-					el.replaceWith(element);
+					if (document.body.contains(el)) {
+						el.replaceWith(element);
+					} else {
+						comp[i] = element;
+					}
 				});
 				return this;
 			} else {
@@ -418,12 +437,16 @@ const ez = (function () {
 					el.replaceWith(element);
 				});
 			} else {
-				forEach(this, el => {
+				forEach(this, (el, i, comp) => {
 					let uid = el.getAttribute('ez-uid');
 					let element = ez.create(this.render(...arguments)).ezid(this.main.getAttribute('ez-id')).main;
-					element.setAttribute('ez-uid', uid);
+					if (document.body.contains(el)) element.setAttribute('ez-uid', uid);
 					element.render = this.render;
-					el.replaceWith(element);
+					if (document.body.contains(el)) {
+						el.replaceWith(element);
+					} else {
+						comp[i] = element;
+					}
 				});
 			}
 			return this;
@@ -481,8 +504,12 @@ const ez = (function () {
 	}
 
 	function forEach(component, func) {
-		if (!component.__selected__) ez.select(component).core.forEach(func);
-		component.core.forEach(func);
+		if (!component.__selected__) ez.select(component).core.forEach(function (el, i, component) {
+			func(el, i, component)
+		});
+		component.core.forEach(function (el, i, component) {
+			func(el, i, component)
+		});
 	}
 
 	function copy(obj) {
@@ -600,11 +627,22 @@ const ez = (function () {
 		}
 	});
 
+	Object.defineProperty(Array.prototype, 'last', {
+		get: function () {
+			return this[this.length - 1];
+		},
+		set: function (data) {
+			this[this.length - 1] = data;
+		}
+	});
+
 	Object.defineProperty(EZComponent.prototype, 'main', {
 		get: function () {
 			return this.core[0];
 		},
-		set: function (data) {}
+		set: function (data) {
+			this.core[0] = data;
+		}
 	});
 
 	let obj = {
@@ -648,7 +686,7 @@ const ez = (function () {
 			if (comp instanceof EZComponent) {
 				return comp.make(Array.from(arguments).slice(1)).setRender(comp.render);
 			} else if (comp.prototype instanceof Template) {
-				return new comp(Array.from(arguments).slice(1)).setRender(comp.render);
+				return new comp();
 			}
 		},
 		comp: function (base, func) { // generates a component with a render function
