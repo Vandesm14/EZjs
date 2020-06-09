@@ -113,6 +113,14 @@ const ez = (function () {
 				return this.main.innerText;
 			}
 		}
+		val(text) {
+			if (text) {
+				forEach(this, el => el.value = text);
+				return this;
+			} else {
+				return this.main.value;
+			}
+		}
 		raw(text, unlink) {
 			if (text) {
 				forEach(this, (el, i, comp) => {
@@ -476,7 +484,7 @@ const ez = (function () {
 			return this;
 		}
 		make() {
-			return ez.create(this.render(...arguments)).ezid(this.main.getAttribute('ez-id')).setRender(this.render);
+			return ez.make(this.render(...arguments)).ezid(this.main.getAttribute('ez-id')).setRender(this.render);
 		}
 		setRender(func) {
 			forEach(this, el => el.render = func);
